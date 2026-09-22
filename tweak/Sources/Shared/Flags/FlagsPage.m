@@ -4,12 +4,12 @@
 #import "Flags.h"
 
 static NSString *flagState(const SGFlagDef *flag, id value) {
-    if (value) return [NSString stringWithFormat:@"forced %@", flag->type == SGFlagBool ? ([value boolValue] ? @"on" : @"off") : value];
+    if (value) return [NSString stringWithFormat:@"强制 %@", flag->type == SGFlagBool ? ([value boolValue] ? @"开启" : @"关闭") : value];
     switch (flag->type) {
-        case SGFlagBool: return flag->value ? @"on by default" : @"off by default";
-        case SGFlagInt: return [NSString stringWithFormat:@"%ld by default, %ld to %ld", flag->value, flag->lower, flag->upper];
-        case SGFlagEnum: return @"text value";
-        default: return @"type unknown";
+        case SGFlagBool: return flag->value ? @"默认开启" : @"默认关闭";
+        case SGFlagInt: return [NSString stringWithFormat:@"默认 %ld，范围 %ld 到 %ld", flag->value, flag->lower, flag->upper];
+        case SGFlagEnum: return @"文本值";
+        default: return @"未知类型";
     }
 }
 
@@ -27,7 +27,7 @@ static NSString *flagState(const SGFlagDef *flag, id value) {
 
 - (instancetype)init {
     if (!(self = [super initWithStyle:UITableViewStylePlain])) return nil;
-    self.title = @"Flags";
+    self.title = @"功能标记";
     return self;
 }
 
@@ -37,10 +37,10 @@ static NSString *flagState(const SGFlagDef *flag, id value) {
     self.tableView.separatorStyle = UITableViewCellSeparatorStyleNone;
     self.tableView.keyboardDismissMode = UIScrollViewKeyboardDismissModeOnDrag;
     _search = [UISearchBar new];
-    _search.placeholder = [NSString stringWithFormat:@"Search %lu flags", (unsigned long)SGFlagCount];
+    _search.placeholder = [NSString stringWithFormat:@"搜索 %lu 个功能标记", (unsigned long)SGFlagCount];
     _search.searchBarStyle = UISearchBarStyleMinimal;
     _search.delegate = self;
-    _header = SGNote(@"Auto keeps Spotify's value. Changes apply after you restart Spotify.");
+    _header = SGNote(@"自动使用 Spotify 当前值。修改会在重启 Spotify 后生效。");
     [_header addSubview:_search];
     self.tableView.tableHeaderView = _header;
     [self reload];
@@ -106,7 +106,7 @@ static NSString *flagState(const SGFlagDef *flag, id value) {
     cell.selectionStyle = UITableViewCellSelectionStyleDefault;
 
     if (flag->type == SGFlagBool) {
-        UISegmentedControl *control = [[UISegmentedControl alloc] initWithItems:@[@"Auto", @"Off", @"On"]];
+        UISegmentedControl *control = [[UISegmentedControl alloc] initWithItems:@[@"自动", @"关闭", @"开启"]];
         control.selectedSegmentIndex = value ? ([value boolValue] ? 2 : 1) : 0;
         control.selectedSegmentTintColor = SGGreen();
         [control setTitleTextAttributes:@{NSForegroundColorAttributeName: UIColor.whiteColor, NSFontAttributeName: SGSubtitleFont()} forState:UIControlStateNormal];
@@ -139,17 +139,17 @@ static NSString *flagState(const SGFlagDef *flag, id value) {
     if (flag->type == SGFlagBool) return;
     NSString *key = @(flag->key);
     id value = _overrides[key];
-    NSString *hint = flag->type == SGFlagUnknown ? @"true or false, a number, or a text value" : flagState(flag, value);
+    NSString *hint = flag->type == SGFlagUnknown ? @"true 或 false、数字或文本值" : flagState(flag, value);
     UIAlertController *alert = [UIAlertController alertControllerWithTitle:[key substringFromIndex:[key rangeOfString:@"."].location + 1] message:hint preferredStyle:UIAlertControllerStyleAlert];
     [alert addTextFieldWithConfigurationHandler:^(UITextField *field) {
         field.text = value ? [value description] : @"";
         field.keyboardType = flag->type == SGFlagInt ? UIKeyboardTypeNumbersAndPunctuation : UIKeyboardTypeDefault;
     }];
-    [alert addAction:[UIAlertAction actionWithTitle:@"Cancel" style:UIAlertActionStyleCancel handler:nil]];
-    [alert addAction:[UIAlertAction actionWithTitle:@"Auto" style:UIAlertActionStyleDestructive handler:^(UIAlertAction *a) {
+    [alert addAction:[UIAlertAction actionWithTitle:@"取消" style:UIAlertActionStyleCancel handler:nil]];
+    [alert addAction:[UIAlertAction actionWithTitle:@"自动" style:UIAlertActionStyleDestructive handler:^(UIAlertAction *a) {
         [self store:nil forKey:key row:path.row];
     }]];
-    [alert addAction:[UIAlertAction actionWithTitle:@"Force" style:UIAlertActionStyleDefault handler:^(UIAlertAction *a) {
+    [alert addAction:[UIAlertAction actionWithTitle:@"强制设置" style:UIAlertActionStyleDefault handler:^(UIAlertAction *a) {
         NSString *text = alert.textFields.firstObject.text;
         if (!text.length) return;
         [self store:flag->type == SGFlagInt ? @(text.integerValue) : text forKey:key row:path.row];

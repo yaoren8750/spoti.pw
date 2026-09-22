@@ -40,36 +40,43 @@ static UIViewController *modSettingsPage(void) {
     // that no switch can put right, and it is worth reading before anything else.
     SGModRow *signing = SGSigningWarningRow();
     if (signing) [sections addObject:SGSection(nil, @[signing])];
-    SGModRow *discord = SGWithSymbol(SGLinkRow(@"Join the Discord", @"Release pings, help and previews", SGDiscordURL), @"bubble.left.and.bubble.right.fill");
-    discord.color = SGDiscordColor();
-    [sections addObject:SGSection(nil, @[SGDonateRow(), discord])];
-    SGModRow *mod = pageRow(@"Mod", @"info.circle", ^UIViewController *{ return SGAboutPage(); });
-    mod.value = ^NSString *{ return @(SG_VERSION); };
-    // The audio effects work on the sound, so both looks have them, with what they are doing beside the chevron.
-    SGModRow *audioEffects = pageRow(@"Audio effects", @"slider.vertical.3", ^UIViewController *{ return SGDSPSettingsPage(); });
+SGModRow *discord = SGWithSymbol(SGLinkRow(@"加入 Discord", @"获取版本更新提醒、帮助和预览", SGDiscordURL), @"bubble.left.and.bubble.right.fill");
+
+discord.color = SGDiscordColor();
+
+[sections addObject:SGSection(nil, @[SGDonateRow(), discord])];
+
+SGModRow *mod = pageRow(@"模组", @"info.circle", ^UIViewController *{ return SGAboutPage(); });
+
+mod.value = ^NSString *{ return @(SG_VERSION); };
+
+// 音效作用于声音处理，因此两个界面都会显示，并在箭头旁显示当前功能。
+
+SGModRow *audioEffects = pageRow(@"音效", @"slider.vertical.3", ^UIViewController *{ return SGDSPSettingsPage(); });
+
     audioEffects.value = ^NSString *{ return SGDSPSummary(); };
     // Home & Library holds only the native look's switches, so the redesign has no such page; the
     // Live Activity works under both, and only where ActivityKit's card does.
     NSMutableArray<SGModRow *> *parts = [NSMutableArray arrayWithArray:@[
-        pageRow(@"Navbar", @"dock.rectangle", ^UIViewController *{ return SGNavbarPage(); }),
-        pageRow(@"Player", @"play.circle", ^UIViewController *{ return SGPlayerSettingsPage(); }),
+        pageRow(@"导航栏", @"dock.rectangle", ^UIViewController *{ return SGNavbarPage(); }),
+        pageRow(@"播放器", @"play.circle", ^UIViewController *{ return SGPlayerSettingsPage(); }),
         audioEffects,
     ]];
     if (@available(iOS 17.0, *)) {
-        SGModRow *liveActivity = pageRow(@"Live Activity", @"platter.filled.top.iphone", ^UIViewController *{ return SGLiveActivitySettingsPage(); });
+        SGModRow *liveActivity = pageRow(@"实时活动", @"platter.filled.top.iphone", ^UIViewController *{ return SGLiveActivitySettingsPage(); });
         liveActivity.value = ^NSString *{ return SGLiveActivitySummary(); };
         [parts addObject:liveActivity];
     }
-    if (!SGRedesignedUIStored()) [parts addObject:pageRow(@"Home & Library", @"house", ^UIViewController *{ return SGHomeSettingsPage(); })];
+    if (!SGRedesignedUIStored()) [parts addObject:pageRow(@"首页&音乐库", @"house", ^UIViewController *{ return SGHomeSettingsPage(); })];
     [sections addObjectsFromArray:@[
         SGAppearanceSection(),
         SGSection(nil, parts),
         SGSection(nil, @[
-            pageRow(@"Privacy & clutter", @"hand.raised", ^UIViewController *{ return SGPrivacySettingsPage(); }),
-            pageRow(@"Labs", @"testtube.2", ^UIViewController *{ return SGLabsPage(); }),
+            pageRow(@"隐私&整理", @"hand.raised", ^UIViewController *{ return SGPrivacySettingsPage(); }),
+            pageRow(@"实验室", @"testtube.2", ^UIViewController *{ return SGLabsPage(); }),
         ]),
         SGSection(nil, @[
-            pageRow(@"All flags", @"flag", ^UIViewController *{ return SGAllFlagsPage(); }),
+            pageRow(@"全部开关", @"flag", ^UIViewController *{ return SGAllFlagsPage(); }),
             mod,
         ]),
     ]];
@@ -94,7 +101,7 @@ static UIViewController *modSettingsPage(void) {
     if (!(self = [super initWithFrame:frame])) return nil;
     _icon = SGSymbolView(@"slider.horizontal.3", 20, UIImageSymbolWeightRegular, 24);
     _title = [UILabel new];
-    _title.text = @"Mod Settings";
+    _title.text = @"模组设置";
     _title.textColor = UIColor.whiteColor;
     _chevron = SGSymbolView(@"chevron.right", 11, UIImageSymbolWeightSemibold, 12);
     for (UIView *v in @[_icon, _title, _chevron]) [self addSubview:v];

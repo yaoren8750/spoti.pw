@@ -31,7 +31,7 @@ static NSDictionary *bestOf(id results, NSInteger seconds) {
 
 SGLyricsAsk SGBiniLyricsAsk = ^(SGLyricsQuery *query, void (^done)(SGLyricsResult *result)) {
     if (!query.title.length || !query.artist.length) {
-        SGLog(@"binilyrics: nothing to search with for %@", query.trackID);
+        SGLog(@"binilyrics: 没有可用于搜索的信息 %@", query.trackID);
         done(nil);
         return;
     }
