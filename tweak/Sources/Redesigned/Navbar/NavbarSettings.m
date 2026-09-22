@@ -11,23 +11,23 @@
 // The picker still asks the dispatcher about each one and leaves out what it has nowhere to send.
 static NSArray<NSDictionary *> *tabPresets(void) {
     return @[
-        @{SGRNavbarTitle: @"Home", SGRNavbarURI: @"spotify:home", SGRNavbarIcon: @"home"},
-        @{SGRNavbarTitle: @"Search", SGRNavbarURI: @"spotify:search", SGRNavbarIcon: @"search"},
-        @{SGRNavbarTitle: @"Your Library", SGRNavbarURI: @"spotify:collection", SGRNavbarIcon: @"collection"},
-        @{SGRNavbarTitle: @"Liked Songs", SGRNavbarURI: @"spotify:collection:tracks", SGRNavbarIcon: @"heart"},
-        @{SGRNavbarTitle: @"Playlists", SGRNavbarURI: @"spotify:playlists", SGRNavbarIcon: @"playlist"},
-        @{SGRNavbarTitle: @"Albums", SGRNavbarURI: @"spotify:collection:albums", SGRNavbarIcon: @"album"},
-        @{SGRNavbarTitle: @"Artists", SGRNavbarURI: @"spotify:collection:artists", SGRNavbarIcon: @"artist"},
-        @{SGRNavbarTitle: @"Podcasts", SGRNavbarURI: @"spotify:collection:podcasts", SGRNavbarIcon: @"podcasts"},
-        @{SGRNavbarTitle: @"Audiobooks", SGRNavbarURI: @"spotify:collection:audiobooks", SGRNavbarIcon: @"audiobook"},
-        @{SGRNavbarTitle: @"Downloads", SGRNavbarURI: @"spotify:collection:downloads", SGRNavbarIcon: @"downloaded"},
-        @{SGRNavbarTitle: @"Your Episodes", SGRNavbarURI: @"spotify:collection:your-episodes", SGRNavbarIcon: @"bookmark"},
-        @{SGRNavbarTitle: @"Browse", SGRNavbarURI: @"spotify:browse", SGRNavbarIcon: @"browse"},
-        @{SGRNavbarTitle: @"New Releases", SGRNavbarURI: @"spotify:new-releases", SGRNavbarIcon: @"star"},
-        @{SGRNavbarTitle: @"Made For You", SGRNavbarURI: @"spotify:made-for-you", SGRNavbarIcon: @"user"},
-        @{SGRNavbarTitle: @"Concerts", SGRNavbarURI: @"spotify:concerts", SGRNavbarIcon: @"events"},
-        @{SGRNavbarTitle: @"Queue", SGRNavbarURI: @"spotify:now-playing:queue", SGRNavbarIcon: @"queue"},
-        @{SGRNavbarTitle: @"Create", SGRNavbarURI: @"spotify:create-menu", SGRNavbarIcon: @"plus"},
+        @{SGRNavbarTitle: @"首页", SGRNavbarURI: @"spotify:home", SGRNavbarIcon: @"home"},
+        @{SGRNavbarTitle: @"搜索", SGRNavbarURI: @"spotify:search", SGRNavbarIcon: @"search"},
+        @{SGRNavbarTitle: @"你的音乐库", SGRNavbarURI: @"spotify:collection", SGRNavbarIcon: @"collection"},
+        @{SGRNavbarTitle: @"喜欢的歌曲", SGRNavbarURI: @"spotify:collection:tracks", SGRNavbarIcon: @"heart"},
+        @{SGRNavbarTitle: @"播放列表", SGRNavbarURI: @"spotify:playlists", SGRNavbarIcon: @"playlist"},
+        @{SGRNavbarTitle: @"专辑 ", SGRNavbarURI: @"spotify:collection:albums", SGRNavbarIcon: @"album"},
+        @{SGRNavbarTitle: @"艺人", SGRNavbarURI: @"spotify:collection:artists", SGRNavbarIcon: @"artist"},
+        @{SGRNavbarTitle: @"播客", SGRNavbarURI: @"spotify:collection:podcasts", SGRNavbarIcon: @"podcasts"},
+        @{SGRNavbarTitle: @"有声书", SGRNavbarURI: @"spotify:collection:audiobooks", SGRNavbarIcon: @"audiobook"},
+        @{SGRNavbarTitle: @"下载内容", SGRNavbarURI: @"spotify:collection:downloads", SGRNavbarIcon: @"downloaded"},
+        @{SGRNavbarTitle: @"你的节目", SGRNavbarURI: @"spotify:collection:your-episodes", SGRNavbarIcon: @"bookmark"},
+        @{SGRNavbarTitle: @"浏览", SGRNavbarURI: @"spotify:browse", SGRNavbarIcon: @"browse"},
+        @{SGRNavbarTitle: @"新发行", SGRNavbarURI: @"spotify:new-releases", SGRNavbarIcon: @"star"},
+        @{SGRNavbarTitle: @"为你打造", SGRNavbarURI: @"spotify:made-for-you", SGRNavbarIcon: @"user"},
+        @{SGRNavbarTitle: @"直播", SGRNavbarURI: @"spotify:concerts", SGRNavbarIcon: @"events"},
+        @{SGRNavbarTitle: @"播放列表", SGRNavbarURI: @"spotify:now-playing:queue", SGRNavbarIcon: @"queue"},
+        @{SGRNavbarTitle: @"创建", SGRNavbarURI: @"spotify:create-menu", SGRNavbarIcon: @"plus"},
     ];
 }
 
@@ -84,24 +84,22 @@ static NSArray<NSDictionary *> *openablePresets(void) {
 
 - (instancetype)init {
     if (!(self = [super initWithStyle:UITableViewStyleInsetGrouped])) return nil;
-    self.title = @"Add a Tab";
+    self.title = @"添加标签页";
     _presets = openablePresets();
     return self;
 }
 
 // Said here rather than by Spotify's alert on the bar later, every time the tab is tapped.
 - (void)refuse:(NSString *)uri {
-    NSString *message = [NSString stringWithFormat:@"Spotify has nowhere to open %@, so it would not work as a tab.", uri];
-    UIAlertController *alert = [UIAlertController alertControllerWithTitle:@"Can't open that link" message:message preferredStyle:UIAlertControllerStyleAlert];
-    [alert addAction:[UIAlertAction actionWithTitle:@"OK" style:UIAlertActionStyleCancel handler:nil]];
+    NSString *message = [NSString stringWithFormat:@"Spotify 没有可以打开 %@ 的位置，因此它无法作为标签页使用。", uri];
+    UIAlertController *alert = [UIAlertController alertControllerWithTitle:@"无法打开此链接" message:message preferredStyle:UIAlertControllerStyleAlert];
+    [alert addAction:[UIAlertAction actionWithTitle:@"确定" style:UIAlertActionStyleCancel handler:nil]];
     [self presentViewController:alert animated:YES completion:nil];
 }
 
 - (void)viewDidLoad {
     [super viewDidLoad];
-    _footer = SGNote(@"Paste a share link or a spotify: URI. Icons: home, search, collection, heart, "
-                   "playlist, album, artist, podcasts, audiobook, downloaded, bookmark, browse, star, "
-                   "user, events, queue, plus, radio, gears, spotifyLogo.");
+    _footer = SGNote(@"粘贴分享链接或 spotify: URI。图标：home、search、collection、heart、playlist、album、artist、podcasts、audiobook、downloaded、bookmark、browse、star、user、events、queue、plus、radio、gears、spotifyLogo。");
     self.tableView.tableFooterView = _footer;
 }
 
@@ -124,7 +122,7 @@ static NSArray<NSDictionary *> *openablePresets(void) {
 }
 
 - (UIView *)tableView:(UITableView *)table viewForHeaderInSection:(NSInteger)section {
-    return SGSectionHeader(table, section == 0 ? @"Spotify's pages" : @"Anywhere else");
+    return SGSectionHeader(table, section == 0 ? @"Spotify 页面" : @"其他位置");
 }
 
 - (CGFloat)tableView:(UITableView *)table heightForHeaderInSection:(NSInteger)section {
@@ -141,7 +139,7 @@ static NSArray<NSDictionary *> *openablePresets(void) {
         NSDictionary *tab = _presets[(NSUInteger)path.row];
         SGFillCell(cell, tab[SGRNavbarTitle], tab[SGRNavbarURI], nil, nil);
     } else {
-        SGFillCell(cell, @"Any link…", nil, nil, @"link");
+        SGFillCell(cell, @"任意链接…", nil, nil, @"link");
     }
     cell.selectionStyle = UITableViewCellSelectionStyleDefault;
     return cell;
@@ -154,21 +152,21 @@ static NSArray<NSDictionary *> *openablePresets(void) {
         [self.navigationController popViewControllerAnimated:YES];
         return;
     }
-    UIAlertController *alert = [UIAlertController alertControllerWithTitle:@"Any link" message:@"Where the tab goes, and the glyph on it." preferredStyle:UIAlertControllerStyleAlert];
-    [alert addTextFieldWithConfigurationHandler:^(UITextField *field) { field.placeholder = @"Name"; }];
+    UIAlertController *alert = [UIAlertController alertControllerWithTitle:@"任意链接" message:@"标签页目标位置以及对应图标。" preferredStyle:UIAlertControllerStyleAlert];
+    [alert addTextFieldWithConfigurationHandler:^(UITextField *field) { field.placeholder = @"名称"; }];
     [alert addTextFieldWithConfigurationHandler:^(UITextField *field) {
         field.placeholder = @"spotify:playlist:…";
         field.autocapitalizationType = UITextAutocapitalizationTypeNone;
         field.autocorrectionType = UITextAutocorrectionTypeNo;
     }];
     [alert addTextFieldWithConfigurationHandler:^(UITextField *field) {
-        field.placeholder = @"Icon";
+        field.placeholder = @"图标";
         field.text = @"star";
         field.autocapitalizationType = UITextAutocapitalizationTypeNone;
         field.autocorrectionType = UITextAutocorrectionTypeNo;
     }];
-    [alert addAction:[UIAlertAction actionWithTitle:@"Cancel" style:UIAlertActionStyleCancel handler:nil]];
-    [alert addAction:[UIAlertAction actionWithTitle:@"Add" style:UIAlertActionStyleDefault handler:^(UIAlertAction *action) {
+    [alert addAction:[UIAlertAction actionWithTitle:@"取消" style:UIAlertActionStyleCancel handler:nil]];
+    [alert addAction:[UIAlertAction actionWithTitle:@"添加" style:UIAlertActionStyleDefault handler:^(UIAlertAction *action) {
         NSString *title = alert.textFields[0].text, *icon = alert.textFields[2].text;
         NSString *uri = SGSpotifyURIFromText(alert.textFields[1].text).absoluteString;
         if (!uri.length) return;
@@ -208,7 +206,7 @@ typedef NS_ENUM(NSInteger, SGRNavbarSection) {
 
 - (instancetype)init {
     if (!(self = [super initWithStyle:UITableViewStyleInsetGrouped])) return nil;
-    self.title = @"Navbar";
+    self.title = @"导航栏";
     return self;
 }
 
@@ -216,7 +214,7 @@ typedef NS_ENUM(NSInteger, SGRNavbarSection) {
     [super viewDidLoad];
     self.tableView.allowsSelectionDuringEditing = YES;
     self.tableView.editing = YES;
-    _intro = SGNote(@"Drag to reorder, tap to show or hide.");
+    _intro = SGNote(@"拖动调整顺序，点击显示或隐藏。");
     self.tableView.tableHeaderView = _intro;
     _entries = navbarEntries();
 }
@@ -253,7 +251,7 @@ typedef NS_ENUM(NSInteger, SGRNavbarSection) {
 }
 
 - (NSString *)headerFor:(NSInteger)section {
-    return section == SGRNavbarSectionTabs ? @"Tabs" : nil;
+    return section == SGRNavbarSectionTabs ? @"标签页" : nil;
 }
 
 - (UIView *)tableView:(UITableView *)table viewForHeaderInSection:(NSInteger)section {
@@ -275,7 +273,7 @@ typedef NS_ENUM(NSInteger, SGRNavbarSection) {
     switch (path.section) {
         case SGRNavbarSectionSwitch: {
             BOOL labels = path.row == 1;
-            SGFillCell(cell, labels ? @"Hide labels" : @"Custom navbar", labels ? @"Icons only" : nil, nil, nil);
+            SGFillCell(cell, labels ? @"隐藏标签" : @"自定义导航栏", labels ? @"仅图标" : nil, nil, nil);
             UISwitch *toggle = [UISwitch new];
             toggle.onTintColor = SGGreen();
             toggle.tag = path.row;
@@ -288,16 +286,16 @@ typedef NS_ENUM(NSInteger, SGRNavbarSection) {
             NSDictionary *entry = _entries[(NSUInteger)path.row];
             BOOL hidden = [entry[SGRNavbarHidden] boolValue];
             NSString *uri = entry[SGRNavbarURI];
-            SGFillCell(cell, entry[SGRNavbarTitle], hidden ? @"Hidden" : (uri ?: @"Spotify's own tab"),
+            SGFillCell(cell, entry[SGRNavbarTitle], hidden ? @"已隐藏" : (uri ?: @"Spotify 原生标签页“),
                      hidden ? SGGrey() : nil, hidden ? @"eye.slash" : @"eye");
             break;
         }
         case SGRNavbarSectionAdd:
-            SGFillCell(cell, @"Add a tab…", nil, nil, @"plus");
+            SGFillCell(cell, @"添加标签页…", nil, nil, @"plus");
             cell.selectionStyle = UITableViewCellSelectionStyleDefault;
             break;
         default:
-            SGFillCell(cell, @"Use Spotify's order", nil, nil, @"arrow.uturn.backward");
+            SGFillCell(cell, @"恢复 Spotify 默认顺序", nil, nil, @"arrow.uturn.backward");
             cell.selectionStyle = UITableViewCellSelectionStyleDefault;
             break;
     }
@@ -356,11 +354,11 @@ typedef NS_ENUM(NSInteger, SGRNavbarSection) {
 }
 
 - (void)reset {
-    UIAlertController *alert = [UIAlertController alertControllerWithTitle:@"Use Spotify's order"
-                                                                  message:@"Every tab of Spotify's comes back where Spotify put it, and the tabs you added go."
+    UIAlertController *alert = [UIAlertController alertControllerWithTitle:@"恢复 Spotify 默认顺序"
+                                                                  message:@"Spotify 的所有标签页将恢复到默认位置，你添加的标签页也会被移除。"
                                                            preferredStyle:UIAlertControllerStyleAlert];
-    [alert addAction:[UIAlertAction actionWithTitle:@"Cancel" style:UIAlertActionStyleCancel handler:nil]];
-    [alert addAction:[UIAlertAction actionWithTitle:@"Reset" style:UIAlertActionStyleDestructive handler:^(UIAlertAction *action) {
+    [alert addAction:[UIAlertAction actionWithTitle:@"取消" style:UIAlertActionStyleCancel handler:nil]];
+    [alert addAction:[UIAlertAction actionWithTitle:@"重置" style:UIAlertActionStyleDestructive handler:^(UIAlertAction *action) {
         SGRSetNavbarLayout(@[]);
         SGRRefreshTabBar();
         self->_entries = navbarEntries();

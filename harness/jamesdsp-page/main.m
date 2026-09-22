@@ -105,15 +105,26 @@ static void findViews(UIView *root, Class kind, NSMutableArray *found) {
 }
 
 // An SGModPage laid out like the Player page, to hold the Audio effects page up against.
+// 一个按照 Player 页面布局的 SGModPage，用于与 Audio effects 页面进行对照。
+
 - (UIViewController *)referencePage {
-    SGModRow *blocked = SGPageRow(@"Blocked artists", ^UIViewController *{ return nil; });
-    blocked.value = ^NSString *{ return @"Off"; };
-    return [[SGModPage alloc] initWithTitle:@"Player" intro:@"Changes apply after you restart Spotify. Gestures and Blocked artists apply straight away." sections:@[
-        SGSection(nil, @[SGWithSymbol(SGPageRow(@"Gestures", ^UIViewController *{ return nil; }), @"hand.tap"), SGWithSymbol(blocked, @"person.crop.circle.badge.xmark")]),
-        SGSection(@"Vibrations", @[SGWithSymbol(SGSwitchRow(@"Controls", @"Play, pause, skipping, scrubbing, shuffle, repeat and adding a song", @"spotifyglass.x"), @"hand.tap"),
-                                   SGWithSymbol(SGOptionRow(@"Music Haptics", @"Taps and rumbles along with the music", @"spotifyglass.y"), @"waveform")]),
-        SGSection(nil, @[SGChoiceRow(@"Shows", nil, @"spotifyglass.z", @[@"Lyrics", @"Queue"], 0)]),
+
+    SGModRow *blocked = SGPageRow(@"已屏蔽的艺人", ^UIViewController *{ return nil; });
+
+    blocked.value = ^NSString *{ return @"关闭"; };
+
+    return [[SGModPage alloc] initWithTitle:@"播放器" intro:@"更改将在重启 Spotify 后生效。手势和已屏蔽的艺人会立即应用。" sections:@[
+
+        SGSection(nil, @[SGWithSymbol(SGPageRow(@"手势", ^UIViewController *{ return nil; }), @"hand.tap"), SGWithSymbol(blocked, @"person.crop.circle.badge.xmark")]),
+
+        SGSection(@"震动反馈", @[SGWithSymbol(SGSwitchRow(@"控制操作", @"播放、暂停、切歌、拖动进度、随机播放、循环播放以及添加歌曲", @"spotifyglass.x"), @"hand.tap"),
+
+                                   SGWithSymbol(SGOptionRow(@"音乐触感", @"跟随音乐节奏提供点击和震动反馈", @"spotifyglass.y"), @"waveform")]),
+
+        SGSection(nil, @[SGChoiceRow(@"显示内容", nil, @"spotifyglass.z", @[@"歌词", @"播放队列"], 0)]),
+
     ] footer:nil];
+
 }
 
 - (void)run:(NSString *)action {

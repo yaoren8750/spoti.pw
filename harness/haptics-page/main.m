@@ -33,18 +33,31 @@ static void findViews(UIView *root, Class kind, NSMutableArray *found) {
 
 // The Player page as App/Pages.m builds it in the redesign, its links standing in for the pages they open.
 - (UIViewController *)playerPage {
+
     UIViewController *(^none)(void) = ^UIViewController *{ return nil; };
-    SGModRow *blocked = SGPageRow(@"Blocked artists", none);
-    blocked.value = ^NSString *{ return @"Off"; };
+
+    SGModRow *blocked = SGPageRow(@"已屏蔽的艺人", none);
+
+    blocked.value = ^NSString *{ return @"关闭"; };
+
     NSMutableArray<SGModSection *> *sections = [NSMutableArray arrayWithArray:@[
-        SGSection(nil, @[SGWithSymbol(SGPageRow(@"Gestures", none), @"hand.tap"), SGWithSymbol(SGPageRow(@"Lyrics", none), @"quote.bubble"),
+
+        SGSection(nil, @[SGWithSymbol(SGPageRow(@"手势", none), @"hand.tap"), SGWithSymbol(SGPageRow(@"歌词", none), @"quote.bubble"),
+
                          SGWithSymbol(blocked, @"person.crop.circle.badge.xmark")]),
-        SGSection(nil, @[SGWithSymbol(SGPageRow(@"Now playing", none), @"rectangle.bottomthird.inset.filled"),
-                         SGWithSymbol(SGPageRow(@"Lock screen widget", none), @"lock")]),
+
+        SGSection(nil, @[SGWithSymbol(SGPageRow(@"正在播放", none), @"rectangle.bottomthird.inset.filled"),
+
+                         SGWithSymbol(SGPageRow(@"锁屏小组件", none), @"lock")]),
+
     ]];
+
     [sections addObjectsFromArray:SGVibrationsSections()];
-    return [[SGModPage alloc] initWithTitle:@"Player" intro:@"Changes apply after you restart Spotify. Gestures, Blocked artists and Vibrations apply straight away."
-                                   sections:sections footer:nil];
+
+    return [[SGModPage alloc] initWithTitle:@"播放器" intro:@"更改将在重启 Spotify 后生效。手势、已屏蔽的艺人和震动反馈会立即应用。"
+
+                                  sections:sections footer:nil];
+
 }
 
 - (BOOL)application:(UIApplication *)application didFinishLaunchingWithOptions:(NSDictionary *)options {

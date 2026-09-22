@@ -145,17 +145,28 @@ NSArray<SGLyricsProvider *> *SGLyricsAllProviders(void) {
             // A source that matches by Spotify's own track id has everything it needs from the
             // start; the rest wait for the player to name the track before they can search.
             provider.needsName = ![@[@"musixmatch", @"spicylyrics"] containsObject:key];
+
             provider.ask = ask;
+
             return provider;
-        };
-        all = @[
-            make(@"spicylyrics", @"Spicy Lyrics", @"Syllable timing, uses your Spotify token", SGSpicyLyricsAsk),
-            make(@"binilyrics", @"BiniLyrics", @"Apple Music word timing", SGBiniLyricsAsk),
-            make(@"musixmatch", @"Musixmatch", @"Spotify's licensed catalogue", SGMusixmatchAsk),
-            make(@"unison", @"Unison", @"Hand-timed, few tracks", SGUnisonAsk),
-            make(@"netease", @"NetEase", @"Word timing, censored", SGNetEaseAsk),
-            make(@"lrclib", @"LRCLIB", @"Line timing, open fallback", SGLrcLibAsk),
-        ];
+
+            };
+
+            all = @[
+
+                make(@"spicylyrics", @"Spicy Lyrics", @"音节时间轴，使用你的 Spotify Token", SGSpicyLyricsAsk),
+
+                make(@"binilyrics", @"BiniLyrics", @"Apple Music 逐词时间轴", SGBiniLyricsAsk),
+
+                make(@"musixmatch", @"Musixmatch", @"Spotify 授权歌词库", SGMusixmatchAsk),
+
+                make(@"unison", @"Unison", @"手动校准时间轴，歌曲较少", SGUnisonAsk),
+
+                make(@"netease", @"NetEase", @"逐词时间轴，经过过滤", SGNetEaseAsk),
+
+                make(@"lrclib", @"LRCLIB", @"逐行时间轴，开放备用来源", SGLrcLibAsk),
+
+            ];
     });
     return all;
 }

@@ -351,22 +351,22 @@ static char kCardGlassKey;
     [self.view addSubview:_card];
 
     UIView *hero = [self hero];
-    UILabel *eyebrow = [self label:@"A STUDENT PROJECT" font:[UIFont systemFontOfSize:12 weight:UIFontWeightBold] color:SGKofiColor()];
+    UILabel *eyebrow = [self label:@"学生项目" font:[UIFont systemFontOfSize:12 weight:UIFontWeightBold] color:SGKofiColor()];
     eyebrow.attributedText = [[NSAttributedString alloc] initWithString:eyebrow.text attributes:@{NSKernAttributeName: @1.4}];
-    UILabel *title = [self label:@"Enjoying spoti.pw?" font:[UIFont systemFontOfSize:26 weight:UIFontWeightBold] color:UIColor.whiteColor];
-    UILabel *body = [self label:@"I'm a student and I build it for free, in my spare time. If it made your music better, a coffee helps me keep going."
+    UILabel *title = [self label:@"喜欢 spoti.pw 吗?" font:[UIFont systemFontOfSize:26 weight:UIFontWeightBold] color:UIColor.whiteColor];
+    UILabel *body = [self label:@"我是一个学生，利用课余时间免费开发它。如果它让你的音乐体验更好，一杯咖啡可以帮助我继续维护下去。"
                            font:[UIFont systemFontOfSize:15] color:[UIColor colorWithWhite:1 alpha:0.72]];
 
-    SGKofiButton *donate = [[SGKofiButton alloc] initWithTitle:@"Buy me a coffee" prominent:YES];
+    SGKofiButton *donate = [[SGKofiButton alloc] initWithTitle:@"请我喝杯咖啡" prominent:YES];
     [donate addTarget:self action:@selector(donate) forControlEvents:UIControlEventTouchUpInside];
 
     UIButtonConfiguration *config = [UIButtonConfiguration plainButtonConfiguration];
     config.baseForegroundColor = [UIColor colorWithWhite:1 alpha:0.6];
-    config.attributedTitle = [[NSAttributedString alloc] initWithString:@"Maybe later" attributes:@{NSFontAttributeName: [UIFont systemFontOfSize:15 weight:UIFontWeightMedium]}];
+    config.attributedTitle = [[NSAttributedString alloc] initWithString:@"稍后" attributes:@{NSFontAttributeName: [UIFont systemFontOfSize:15 weight:UIFontWeightMedium]}];
     UIButton *later = [UIButton buttonWithConfiguration:config primaryAction:nil];
     [later addTarget:self action:@selector(later) forControlEvents:UIControlEventTouchUpInside];
 
-    UILabel *thanks = [self label:@"Also built on Spicy Lyrics, JamesDSP and EeveeSpotify. Thank you to everyone behind them."
+    UILabel *thanks = [self label:@"同时感谢 Spicy Lyrics、JamesDSP 和 EeveeSpotify 的支持。感谢所有为这些项目付出的人。"
                              font:[UIFont systemFontOfSize:11] color:[UIColor colorWithWhite:1 alpha:0.38]];
 
     UIStackView *column = [[UIStackView alloc] initWithArrangedSubviews:@[hero, eyebrow, title, body, donate, later, thanks]];
@@ -473,7 +473,7 @@ void SGShowDonateSheet(void) {
 }
 
 SGModRow *SGDonateRow(void) {
-    SGModRow *row = SGWithSymbol(SGActionRow(@"Support spoti.pw", @"Buy the student behind it a coffee", ^{ SGShowDonateSheet(); }), @"cup.and.saucer.fill");
+    SGModRow *row = SGWithSymbol(SGActionRow(@"支持项目", @"请开发者喝杯咖啡", ^{ SGShowDonateSheet(); }), @"cup.and.saucer.fill");
     row.color = SGKofiColor();
     return row;
 }

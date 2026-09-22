@@ -21,7 +21,7 @@ typedef NS_ENUM(NSInteger, SGSourcesSection) {
 
 - (instancetype)init {
     if (!(self = [super initWithStyle:UITableViewStyleInsetGrouped])) return nil;
-    self.title = @"Lyrics sources";
+    self.title = @"歌词来源";
     return self;
 }
 
@@ -42,8 +42,7 @@ typedef NS_ENUM(NSInteger, SGSourcesSection) {
     [self read];
     self.tableView.editing = YES;
     self.tableView.allowsSelectionDuringEditing = YES;
-    _footer = SGNote(@"Asked top to bottom until one has word timing. Spicy Lyrics is sent your Spotify "
-                      "access token; the others get only the track, never your account.");
+    _footer = SGNote(@"按从上到下的顺序请求，直到找到带逐词时间轴的歌词。Spicy Lyrics 会发送你的 Spotify 访问令牌；其他来源只会获取歌曲信息，不会获取你的账户信息。");
     self.tableView.tableFooterView = _footer;
 }
 
@@ -70,8 +69,8 @@ typedef NS_ENUM(NSInteger, SGSourcesSection) {
 }
 
 - (UIView *)tableView:(UITableView *)table viewForHeaderInSection:(NSInteger)section {
-    if (section == SGSourcesSectionOn) return SGSectionHeader(table, _on.count ? @"Asked in this order" : @"None on");
-    return _off.count ? SGSectionHeader(table, @"Off") : nil;
+    if (section == SGSourcesSectionOn) return SGSectionHeader(table, _on.count ? @"按此顺序请求" : @"未启用");
+    return _off.count ? SGSectionHeader(table, @"关闭") : nil;
 }
 
 - (CGFloat)tableView:(UITableView *)table heightForHeaderInSection:(NSInteger)section {
