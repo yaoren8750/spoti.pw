@@ -12,19 +12,23 @@ jobs:
 
     steps:
 
-      # 拉取你的源码
       - name: Checkout source
         uses: actions/checkout@v5
 
 
-      # 设置 Xcode
+      - name: Check project
+        run: |
+          pwd
+          ls -la
+          find . -maxdepth 2 -name Makefile
+
+
       - name: Setup Xcode
         uses: maxim-lobanov/setup-xcode@v1
         with:
           xcode-version: latest-stable
 
 
-      # 下载 Theos
       - name: Install Theos
         uses: actions/checkout@v5
         with:
@@ -33,23 +37,19 @@ jobs:
           submodules: recursive
 
 
-      # 安装编译工具
-      - name: Install build tools
+      - name: Install tools
         run: |
           brew install make dpkg ldid
 
 
-      # 编译 Rootless deb
-      - name: Build deb package
+      - name: Build deb
         run: |
-          make clean
           make package FINALPACKAGE=1 ROOTLESS=1
 
 
-      # 上传 deb 文件
       - name: Upload deb
         uses: actions/upload-artifact@v5
         with:
-          name: rootless-deb
+          name: spoti-rootless-deb
           path: packages/*.deb
           if-no-files-found: error
