@@ -40,10 +40,14 @@ jobs:
       - name: Install tools
         run: |
           brew install make dpkg ldid
-
-
-      - name: Build deb
+          
+      - name: Check structure
         run: |
+          pwd
+          ls -la
+          find . -maxdepth 3 -name Makefile -o -name "*.xm" -o -name "control"
+      - name: Build deb
+        run: ｜
           make package FINALPACKAGE=1 ROOTLESS=1
 
 
