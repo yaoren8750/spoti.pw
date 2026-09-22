@@ -1,61 +1,55 @@
-# Every push to main updates one release PR (version.txt and CHANGELOG.md from the feat:/fix:
-# commits since the last release). Merging it tags vX.Y.Z and makes the GitHub Release, and the
-# second job builds the tweak's .deb and attaches it. No IPA is built or published here.
-name: Release
+name: Build Rootless deb
 
 on:
-  push:
-    branches: [main]
+  workflow_dispatch:
 
-permissions:
-  contents: write
-  pull-requests: write
+env:
+  THEOS: ${{ github.workspace }}/theos
 
 jobs:
-  release-please:
-    runs-on: ubuntu-latest
-    outputs:
-      created: ${{ steps.release.outputs.release_created }}
-      tag: ${{ steps.release.outputs.tag_name }}
-    steps:
-      - uses: googleapis/release-please-action@v4
-        id: release
-
-  deb:
-    needs: release-please
-    if: needs.release-please.outputs.created == 'true'
+  build:
     runs-on: macos-latest
-    env:
-      THEOS: ${{ github.workspace }}/theos
-    steps:
-      - uses: actions/checkout@v5
 
-      - uses: maxim-lobanov/setup-xcode@v1
+    steps:
+
+      # 拉取你的源码
+      - name: Checkout source
+        uses: actions/checkout@v5
+
+
+      # 设置 Xcode
+      - name: Setup Xcode
+        uses: maxim-lobanov/setup-xcode@v1
         with:
           xcode-version: latest-stable
 
-      - uses: actions/checkout@v5
+
+      # 下载 Theos
+      - name: Install Theos
+        uses: actions/checkout@v5
         with:
           repository: theos/theos
           path: theos
           submodules: recursive
 
-      - name: Install tools
-        run: brew install make dpkg ldid
 
-      # The flag table is read out of Spotify's binary (make flags), so it comes from a secret
-      # instead of an IPA: gzip -9c tweak/Sources/Shared/Flags/SGFlagList.m | base64 | gh secret set SG_FLAG_LIST
-      - name: Flag table
-        env:
-          SG_FLAG_LIST: ${{ secrets.SG_FLAG_LIST }}
+      # 安装编译工具
+      - name: Install build tools
         run: |
-          [ -n "$SG_FLAG_LIST" ] || { echo "::error::the SG_FLAG_LIST secret is not set"; exit 1; }
-          echo "$SG_FLAG_LIST" | base64 -d | gunzip > tweak/Sources/Shared/Flags/SGFlagList.m
+          brew install make dpkg ldid
 
-      - name: Build
-        run: env -u MAKELEVEL gmake -C tweak clean package
 
-      - name: Attach to the release
-        env:
-          GH_TOKEN: ${{ github.token }}
-        run: gh release upload "${{ needs.release-please.outputs.tag }}" tweak/packages/*.deb --clobber
+      # 编译 Rootless deb
+      - name: Build deb package
+        run: |
+          make clean
+          make package FINALPACKAGE=1 ROOTLESS=1
+
+
+      # 上传 deb 文件
+      - name: Upload deb
+        uses: actions/upload-artifact@v5
+        with:
+          name: rootless-deb
+          path: packages/*.deb
+          if-no-files-found: error
