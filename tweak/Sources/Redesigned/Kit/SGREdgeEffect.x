@@ -5,15 +5,6 @@
 // on arrival, in case UIKit resolves the style again after the page appears.
 #import <objc/runtime.h>
 #import "Core/SGCore.h"
-#import <objc/message.h>
-
-@interface UIScrollEdgeEffect : NSObject
-@property(nonatomic, strong) id sgr_style;
-@end
-
-@interface UIScrollView (EdgeEffectPrivate)
-@property(nonatomic, strong) id sgr_topEdgeEffect;
-@end
 
 static void soften(UIScrollView *scrollView) {
     if (@available(iOS 26.0, *)) {
@@ -21,22 +12,8 @@ static void soften(UIScrollView *scrollView) {
         static char setKey;
         UIScrollEdgeEffect *top = scrollView.topEdgeEffect;
         if (top.style == objc_getAssociatedObject(scrollView, &setKey)) return;
-        Class styleClass = NSClassFromString(@"UIScrollEdgeEffectStyle");
-
-id soft = nil;
-
-if (styleClass) {
-    SEL sel = NSSelectorFromString(@"softStyle");
-
-    if ([styleClass respondsToSelector:sel]) {
-        soft = ((id (*)(id, SEL))objc_msgSend)(styleClass, sel);
-    }
-}
-
-if (!soft)
-    return;
-
-[top setValue:soft forKey:@"style"];
+        UIScrollEdgeEffectStyle *soft = UIScrollEdgeEffectStyle.softStyle;
+        top.style = soft;
         objc_setAssociatedObject(scrollView, &setKey, top.style, OBJC_ASSOCIATION_RETAIN_NONATOMIC);
         static dispatch_once_t once;
         dispatch_once(&once, ^{ SGLog(@"soft top edge: first scroll view %@", NSStringFromClass(scrollView.class)); });
@@ -59,3 +36,4 @@ if (!soft)
     if (!SGRedesignedUI()) return;
     %init;
 }
+
