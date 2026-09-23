@@ -8,11 +8,11 @@
 #import <objc/message.h>
 
 @interface UIScrollEdgeEffect : NSObject
-@property(nonatomic, strong) id style;
+@property(nonatomic, strong) id sgr_style;
 @end
 
 @interface UIScrollView (EdgeEffectPrivate)
-@property(nonatomic, strong) UIScrollEdgeEffect *topEdgeEffect;
+@property(nonatomic, strong) id sgr_topEdgeEffect;
 @end
 
 static void soften(UIScrollView *scrollView) {
