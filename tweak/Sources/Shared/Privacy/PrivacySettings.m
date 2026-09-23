@@ -4,49 +4,110 @@
 // Every switch here forces a flag Spotify ships on to off, so the titles name the hiding: on hides
 // the thing, off is Spotify's own value.
 static UIViewController *tipsPage(void) {
-    return [[SGModPage alloc] initWithTitle:@"Tips" intro:SGRestartNote sections:@[
-        SGSection(@"Reduce interventions", @[
-            SGFlagRow(@"Reduce interventions", @"ios-messaging-reduceinterventions-impl.enabled"),
+
+    return [[SGModPage alloc] initWithTitle:@"提示"
+                                      intro:SGRestartNote sections:@[
+
+        SGSection(@"减少干扰", @[
+
+            SGFlagRow(@"减少干扰", @"ios-messaging-reduceinterventions-impl.enabled"),
+
         ]),
-        SGSection(@"Tooltips", @[
-            SGKillRow(@"Hide the smart shuffle helper", @"ios-messaging-reduceinterventions-impl.enable_message_smart_shuffle_helper_tooltip"),
-            SGKillRow(@"Hide the data saver tip", @"ios-feature-nowplayingbar.data_saver_tooltip"),
-            SGKillRow(@"Hide the AI playlist creation tip", @"ios-messaging-reduceinterventions-impl.enable_message_your_library_ai_playlist_creation_tooltip"),
-            SGKillRow(@"Hide the watch feed explorer tip", @"ios-messaging-reduceinterventions-impl.enable_message_watch_feed_entity_explorer_tooltip"),
-            SGKillRow(@"Hide the account switching tip", @"ios-messaging-reduceinterventions-impl.enable_message_account_switching_tooltip"),
-            SGKillRow(@"Hide the concert notifications tip", @"ios-messaging-reduceinterventions-impl.enable_message_live_events_concert_notifications_tooltip"),
-            SGKillRow(@"Hide the live event tip", @"ios-messaging-reduceinterventions-impl.enable_message_live_events_event_entity_safe_tooltip"),
-            SGKillRow(@"Hide the live event venue tip", @"ios-messaging-reduceinterventions-impl.enable_message_live_events_event_entity_venuename_header_tooltip"),
-            SGKillRow(@"Hide the Puffin nudge", @"ios-messaging-reduceinterventions-impl.enable_message_puffin_nudge_end_optimization"),
+
+        SGSection(@"提示信息", @[
+
+            SGKillRow(@"隐藏智能随机播放助手提示", @"ios-messaging-reduceinterventions-impl.enable_message_smart_shuffle_helper_tooltip"),
+
+            SGKillRow(@"隐藏省流量提示", @"ios-feature-nowplayingbar.data_saver_tooltip"),
+
+            SGKillRow(@"隐藏 AI 创建播放列表提示", @"ios-messaging-reduceinterventions-impl.enable_message_your_library_ai_playlist_creation_tooltip"),
+
+            SGKillRow(@"隐藏观看动态探索提示", @"ios-messaging-reduceinterventions-impl.enable_message_watch_feed_entity_explorer_tooltip"),
+
+            SGKillRow(@"隐藏账户切换提示", @"ios-messaging-reduceinterventions-impl.enable_message_account_switching_tooltip"),
+
+            SGKillRow(@"隐藏演唱会通知提示", @"ios-messaging-reduceinterventions-impl.enable_message_live_events_concert_notifications_tooltip"),
+
+            SGKillRow(@"隐藏现场活动提示", @"ios-messaging-reduceinterventions-impl.enable_message_live_events_event_entity_safe_tooltip"),
+
+            SGKillRow(@"隐藏现场活动场馆提示", @"ios-messaging-reduceinterventions-impl.enable_message_live_events_event_entity_venuename_header_tooltip"),
+
+            SGKillRow(@"隐藏 Puffin 优化提示", @"ios-messaging-reduceinterventions-impl.enable_message_puffin_nudge_end_optimization"),
+
         ]),
+
     ] footer:nil];
+
 }
 
 static SGModSection *countersSection(void) {
+
     NSMutableArray<SGModRow *> *counts = [NSMutableArray array];
+
     for (NSString *label in SGBlockedLabels()) {
+
         [counts addObject:SGStatRow(label, ^NSString *{
+
             return @(SGBlockedCount(label)).stringValue;
+
         })];
+
     }
-    [counts addObject:SGStatRow(@"Total", ^NSString *{
+
+    [counts addObject:SGStatRow(@"总计", ^NSString *{
+
         return @(SGBlockedCount(nil)).stringValue;
+
     })];
-    [counts addObject:SGActionRow(@"Reset the telemetry counters", nil, ^{ SGResetBlocked(); })];
-    return SGSection(@"Telemetry blocked so far", counts);
+
+    [counts addObject:SGActionRow(@"重置遥测统计数据", nil, ^{ SGResetBlocked(); })];
+
+    return SGSection(@"已拦截的遥测统计", counts);
+
 }
 
-// The switches first and what they have stopped last, so the counters bury no setting.
+// 开关优先显示，统计信息放在最后，避免干扰设置项。
+
 UIViewController *SGPrivacySettingsPage(void) {
-    return [[SGModPage alloc] initWithTitle:@"Privacy & clutter" intro:SGRestartNote sections:@[
-        SGSection(@"Privacy", @[
-            SGWithSymbol(SGSwitchRow(@"Block telemetry", @"Spotify's own events still go out, since Recents is built from them", SGKeyBlockTelemetry), @"antenna.radiowaves.left.and.right.slash"),
+
+    return [[SGModPage alloc] initWithTitle:@"隐私与清理"
+                                      intro:SGRestartNote sections:@[
+
+        SGSection(@"隐私", @[
+
+            SGWithSymbol(
+                SGSwitchRow(@"阻止遥测数据",
+                            @"Spotify 自身事件仍会发送，因为「最近播放」依赖这些数据",
+                            SGKeyBlockTelemetry),
+                @"antenna.radiowaves.left.and.right.slash"),
+
         ]),
-        SGSection(@"Clutter", @[
-            SGWithSymbol(SGOptionRow(@"Hide the video carousel in Search", nil, SGKeyHideSearchVideos), @"play.rectangle.on.rectangle"),
-            SGWithSymbol(SGOptionRow(@"Hide social proof in Search", nil, SGKeyHideSocialProof), @"person.2"),
-            SGWithSymbol(SGPageRow(@"Tips", ^UIViewController *{ return tipsPage(); }), @"lightbulb"),
+
+        SGSection(@"清理", @[
+
+            SGWithSymbol(
+                SGOptionRow(@"隐藏搜索中的视频轮播",
+                            nil,
+                            SGKeyHideSearchVideos),
+                @"play.rectangle.on.rectangle"),
+
+            SGWithSymbol(
+                SGOptionRow(@"隐藏搜索中的社交信息",
+                            nil,
+                            SGKeyHideSocialProof),
+                @"person.2"),
+
+            SGWithSymbol(
+                SGPageRow(@"提示",
+                          ^UIViewController *{
+                              return tipsPage();
+                          }),
+                @"lightbulb"),
+
         ]),
+
         countersSection(),
+
     ] footer:nil];
+
 }

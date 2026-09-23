@@ -16,6 +16,20 @@
 #import "Shared/Haptics/Haptics.h"
 #import "Redesigned/Kit/SGRTokens.h"
 
+@interface UIScrollEdgeEffect : NSObject
+@property(nonatomic, strong) id style;
+@end
+
+
+
+@interface UIScrollView (EdgeEffectPrivate)
+@property(nonatomic, strong) UIScrollEdgeEffect *topEdgeEffect;
+@end
+
+@interface UIButtonConfiguration (SGGlassPrivate)
++ (instancetype)glassButtonConfiguration;
+@end
+
 static const CGFloat kFontSize = 30, kMargin = 24, kLineGap = 24, kRowTighten = 2;
 static const CGFloat kDimAlpha = 0.3, kFillEdge = 22, kLift = 2.5, kDimScale = 0.97;
 static const CGFloat kAnchor = 0.28;   // where the sung line rests, as a share of the height

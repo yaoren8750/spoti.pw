@@ -173,7 +173,7 @@ static NSString *cellLabel(SGGestureAction action) {
 
 - (UIView *)tableView:(UITableView *)table viewForHeaderInSection:(NSInteger)section {
     if (section == 1) return SGSectionHeader(table, @"拆分方式");
-    if (section == 2) return SGSectionHeader(table, @"跳转步长");
+    if (section == 2) return SGSectionHeader(table, @"跳转时长");
     return nil;
 }
 

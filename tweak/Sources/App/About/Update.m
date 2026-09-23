@@ -78,7 +78,7 @@ static NSString *takeCommitURL(NSString **line) {
 // heading release-please leads with, blank lines -- is dropped, the version being known already.
 static NSArray<SGUpdateChange *> *changesIn(NSString *body) {
     NSMutableArray<SGUpdateChange *> *changes = [NSMutableArray array];
-    NSString *kind = @"Changes";
+    NSString *kind = @"更新内容";
     SGUpdateChange *open = nil;
     for (NSString *raw in [body componentsSeparatedByCharactersInSet:NSCharacterSet.newlineCharacterSet]) {
         NSString *line = [raw stringByTrimmingCharactersInSet:NSCharacterSet.whitespaceCharacterSet];
@@ -143,12 +143,12 @@ NSString *SGUpdateVersion(void) {
 // What the Updates row shows on the right; the page's own ticker reads it while the page is open,
 // so the async check lands in the cell without anything having to be told about it.
 NSString *SGUpdateStatus(void) {
-    if (sg_running) return @"checking…";
+    if (sg_running) return @"正在检查…";
     if (sg_failure) return sg_failure;
     NSString *latest = SGUpdateVersion();
-    if (latest) return [latest stringByAppendingString:@" is out"];
-    if ([NSUserDefaults.standardUserDefaults doubleForKey:kChecked] > 0) return @"up to date";
-    return @"not checked";
+    if (latest) return [latest stringByAppendingString:@" 已发布"];
+    if ([NSUserDefaults.standardUserDefaults doubleForKey:kChecked] > 0) return @"已是最新版本";
+    return @"尚未检查";
 }
 
 #pragma mark - the check

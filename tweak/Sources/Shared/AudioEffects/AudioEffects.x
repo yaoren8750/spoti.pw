@@ -190,9 +190,9 @@ static BOOL isRemoteIO(AudioUnit unit) {
 
 static NSString *formatText(AudioStreamBasicDescription format) {
     if (format.mFormatID != kAudioFormatLinearPCM) return [NSString stringWithFormat:@"'%@'", fourCC(format.mFormatID)];
-    return [NSString stringWithFormat:@"%.0f Hz, %u channels, %u-bit %@%@", format.mSampleRate, (unsigned)format.mChannelsPerFrame,
-            (unsigned)format.mBitsPerChannel, (format.mFormatFlags & kAudioFormatFlagIsFloat) ? @"float" : @"integer",
-            (format.mFormatFlags & kAudioFormatFlagIsNonInterleaved) ? @", a buffer per channel" : @", interleaved"];
+    return [NSString stringWithFormat:@"%.0f Hz, %u 声道, %u 位 %@%@", format.mSampleRate, (unsigned)format.mChannelsPerFrame,
+            (unsigned)format.mBitsPerChannel, (format.mFormatFlags & kAudioFormatFlagIsFloat) ? @"浮点" : @"整数",
+            (format.mFormatFlags & kAudioFormatFlagIsNonInterleaved) ? @", 每个声道独立缓冲" : @", 交错"];
 }
 
 // The format the notify's buffers are in, which is the RemoteIO unit's output side (element 0, output scope):
@@ -262,12 +262,27 @@ static OSStatus startOutput(AudioUnit unit) {
 
 // An effect's name in the log, by its switch key.
 static NSString *effectName(NSString *effect) {
+
     NSDictionary<NSString *, NSString *> *names = @{
-        SGKeyDSPCompander: @"compander", SGKeyDSPBass: @"bass boost", SGKeyDSPEqualizer: @"equalizer", SGKeyDSPGraphicEq: @"graphic EQ",
-        SGKeyDSPConvolver: @"convolver", SGKeyDSPDDC: @"DDC", SGKeyDSPLiveprog: @"Liveprog", SGKeyDSPReverb: @"reverb",
-        SGKeyDSPStereoWide: @"stereo widening", SGKeyDSPCrossfeed: @"crossfeed", SGKeyDSPTube: @"analog modelling",
+
+        SGKeyDSPCompander: @"动态范围压缩",
+        SGKeyDSPBass: @"低音增强",
+        SGKeyDSPEqualizer: @"均衡器",
+        SGKeyDSPGraphicEq: @"图形均衡器",
+
+        SGKeyDSPConvolver: @"卷积器",
+        SGKeyDSPDDC: @"DDC",
+        SGKeyDSPLiveprog: @"Liveprog",
+        SGKeyDSPReverb: @"混响",
+
+        SGKeyDSPStereoWide: @"立体声扩展",
+        SGKeyDSPCrossfeed: @"交叉馈音",
+        SGKeyDSPTube: @"模拟建模",
+
     };
+
     return names[effect] ?: effect;
+
 }
 
 static void setError(NSString *effect, NSString *message) {
@@ -275,7 +290,9 @@ static void setError(NSString *effect, NSString *message) {
     if (!sg_errors) sg_errors = [NSMutableDictionary dictionary];
     sg_errors[effect] = message;
     os_unfair_lock_unlock(&sg_errorLock);
+
     if (message) SGLog(@"dsp: %@ did not take: %@", effectName(effect), message);
+
 }
 
 NSString *SGDSPError(NSString *switchKey) {
@@ -289,7 +306,7 @@ NSString *SGDSPError(NSString *switchKey) {
 #pragma mark - the queue: setting the effects
 
 static NSString *onOff(BOOL on) {
-    return on ? @"on" : @"off";
+    return on ? @"开启" : @"关闭";
 }
 
 static NSString *gainsText(NSArray<NSNumber *> *gains) {
@@ -308,12 +325,12 @@ static NSString *libraryFile(SGDSPFileKind kind, NSString *nameKey, NSString *ef
     NSString *name = SGDSPString(nameKey);
     if (!on) return nil;
     if (!name.length) {
-        setError(effect, @"No file is chosen");
+        setError(effect, @"未选择文件");
         return nil;
     }
     NSString *path = [SGDSPLibraryDirectory(kind) stringByAppendingPathComponent:name.lastPathComponent];
     if (![NSFileManager.defaultManager fileExistsAtPath:path]) {
-        setError(effect, [NSString stringWithFormat:@"%@ is not in the library any more", name]);
+        setError(effect, [NSString stringWithFormat:@"%@ 已不在库中", name]);
         return nil;
     }
     return path;
@@ -346,33 +363,42 @@ static void applyEffect(SGDSPEngine *engine, NSString *effect) {
         double values[7];
         for (int i = 0; i < 7; i++) values[i] = gains[i].doubleValue;
         double time = SGDSPNumber(SGKeyDSPCompanderTime);
+
         SGDSPEngineSetCompander(engine, on, time, SGDSPCompanderFrequencies, values);
         what = [NSString stringWithFormat:@"compander %@, %.2f s, amounts %@", onOff(on), time, gainsText(gains)];
+
     } else if ([effect isEqualToString:SGKeyDSPBass]) {
         double gain = SGDSPNumber(SGKeyDSPBassGain);
         SGDSPEngineSetBassBoost(engine, on, gain);
-        what = [NSString stringWithFormat:@"bass boost %@, %.1f dB", onOff(on), gain];
+        what = [NSString stringWithFormat:@"低音增强 %@, %.1f dB", onOff(on), gain];
     } else if ([effect isEqualToString:SGKeyDSPEqualizer]) {
         NSArray<NSNumber *> *gains = SGDSPGains(SGKeyDSPEqualizerGains);
         double values[15];
         for (int i = 0; i < 15; i++) values[i] = gains[i].doubleValue;
+
         SGDSPEngineSetEqualizer(engine, on, SGDSPEqualizerFrequencies, values);
         what = [NSString stringWithFormat:@"equalizer %@, gains %@", onOff(on), gainsText(gains)];
+
     } else if ([effect isEqualToString:SGKeyDSPGraphicEq]) {
         NSString *nodes = SGDSPString(SGKeyDSPGraphicEqNodes);
         ok = SGDSPEngineSetGraphicEq(engine, on, nodes.UTF8String, error, sizeof error);
         NSUInteger count = [nodes componentsSeparatedByString:@";"].count;
+
         what = [NSString stringWithFormat:@"Graphic EQ %@, about %lu points", onOff(on), (unsigned long)(count > 1 ? count - 1 : count)];
+
     } else if ([effect isEqualToString:SGKeyDSPConvolver]) {
         NSString *path = libraryFile(SGDSPFileImpulseResponse, SGKeyDSPConvolverFile, effect, on);
         if (on && !path) {
             SGDSPEngineSetConvolver(engine, false, NULL, 0, error, sizeof error);
             return;
         }
+
         CFAbsoluteTime start = CFAbsoluteTimeGetCurrent();
         ok = SGDSPEngineSetConvolver(engine, on, path.fileSystemRepresentation, (int)SGDSPNumber(SGKeyDSPConvolverMode), error, sizeof error);
         what = [NSString stringWithFormat:@"convolver %@%@%@", onOff(on), on ? @", " : @"", on ? [NSString stringWithFormat:@"%@ (%@) read in %.0f ms",
                 path.lastPathComponent, choice(SGDSPConvolverModeNames(), SGKeyDSPConvolverMode), (CFAbsoluteTimeGetCurrent() - start) * 1000] : @""];
+
+        
     } else if ([effect isEqualToString:SGKeyDSPDDC]) {
         NSString *path = libraryFile(SGDSPFileDDC, SGKeyDSPDDCFile, effect, on);
         if (on && !path) {
@@ -395,18 +421,19 @@ static void applyEffect(SGDSPEngine *engine, NSString *effect) {
                 path.lastPathComponent, (CFAbsoluteTimeGetCurrent() - start) * 1000] : @""];
     } else if ([effect isEqualToString:SGKeyDSPReverb]) {
         SGDSPEngineSetReverb(engine, on, (int)SGDSPNumber(SGKeyDSPReverbPreset));
-        what = [NSString stringWithFormat:@"reverb %@, %@", onOff(on), choice(SGDSPReverbPresetNames(), SGKeyDSPReverbPreset)];
+
+        what = [NSString stringWithFormat:@"混响 %@, %@", onOff(on), choice(SGDSPReverbPresetNames(), SGKeyDSPReverbPreset)];
     } else if ([effect isEqualToString:SGKeyDSPStereoWide]) {
         double level = SGDSPNumber(SGKeyDSPStereoWideLevel);
         SGDSPEngineSetStereoWide(engine, on, level);
-        what = [NSString stringWithFormat:@"stereo widening %@, %.0f%%", onOff(on), level];
+        what = [NSString stringWithFormat:@"立体声扩展 %@, %.0f%%", onOff(on), level];
     } else if ([effect isEqualToString:SGKeyDSPCrossfeed]) {
         SGDSPEngineSetCrossfeed(engine, on, (int)SGDSPNumber(SGKeyDSPCrossfeedMode));
-        what = [NSString stringWithFormat:@"crossfeed %@, %@", onOff(on), choice(SGDSPCrossfeedModeNames(), SGKeyDSPCrossfeedMode)];
+        what = [NSString stringWithFormat:@"交叉馈音 %@, %@", onOff(on), choice(SGDSPCrossfeedModeNames(), SGKeyDSPCrossfeedMode)];
     } else if ([effect isEqualToString:SGKeyDSPTube]) {
         double drive = SGDSPNumber(SGKeyDSPTubeDrive);
         SGDSPEngineSetTube(engine, on, drive);
-        what = [NSString stringWithFormat:@"analog modelling %@, %.1f dB", onOff(on), drive];
+        what = [NSString stringWithFormat:@"模拟音色 %@, %.1f dB", onOff(on), drive];
     } else {
         return;
     }
@@ -555,14 +582,14 @@ void SGDSPApply(NSString *effect) {
 #pragma mark - what the page shows
 
 NSString *SGDSPStatus(void) {
-    if (!SGDSPSwitch(SGKeyDSP)) return @"Off";
-    if (atomic_load(&sg_outputState) == SGOutputUnsupported) return @"Spotify's output is in a format the engine does not take";
+    if (!SGDSPSwitch(SGKeyDSP)) return @"关闭";
+    if (atomic_load(&sg_outputState) == SGOutputUnsupported) return @"Spotify 的音频格式不受此引擎支持";
     SGDSPEngine *engine = atomic_load(&sg_engine);
-    if (!sg_startOutput) return @"Unavailable: Spotify's output could not be reached";
-    if (!engine || !atomic_load(&sg_running)) return @"Waiting for Spotify to play";
+    if (!sg_startOutput) return @"不可用：无法访问 Spotify 的音频输出";
+    if (!engine || !atomic_load(&sg_running)) return @"等待 Spotify 播放";
     double rate = SGDSPEngineSampleRate(engine);
     double load = SGDSPEngineReadStats(engine, false).load;
-    return [NSString stringWithFormat:@"Running at %@ kHz, %.1f%% load", [NSString stringWithFormat:@"%g", rate / 1000], load * 100];
+    return [NSString stringWithFormat:@"运行中 · %@ kHz，占用 %.1f%%", [NSString stringWithFormat:@"%g", rate / 1000], load * 100];
 }
 
 void SGDSPEqualizerResponse(NSArray<NSNumber *> *gains, NSInteger count, double *frequencies, double *decibels) {

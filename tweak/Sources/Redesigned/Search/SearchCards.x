@@ -18,6 +18,7 @@
 #import "Redesigned/Kit/SGRKit.h"
 #import "Search.h"
 
+
 // The tint the glass takes of the card's colour, and how dark the far corner of the colour under it gets.
 static const CGFloat kTintAlpha = 0.35;
 static const CGFloat kFarBrightness = 0.55;
@@ -141,9 +142,19 @@ static void paint(SGRSearchCardParts *parts, UIColor *color) {
     ((CAGradientLayer *)parts.plate.layer).colors = @[(id)color.CGColor, (id)darker(color).CGColor];
     if (@available(iOS 26.0, *)) {
         if (parts.glass) {
-            UIGlassEffect *effect = [UIGlassEffect effectWithStyle:UIGlassEffectStyleClear];
-            effect.tintColor = [color colorWithAlphaComponent:kTintAlpha];
-            parts.glass.effect = effect;
+            Class glassClass = NSClassFromString(@"UIGlassEffect");
+
+UIVisualEffect *effect = nil;
+
+if (glassClass && [glassClass respondsToSelector:@selector(effectWithStyle:)]) {
+    effect = [glassClass effectWithStyle:0];
+
+    if ([effect respondsToSelector:@selector(setTintColor:)]) {
+        [(id)effect setTintColor:[color colorWithAlphaComponent:kTintAlpha]];
+    }
+}
+
+parts.glass.effect = effect ?: SGGlassEffect();
         }
     }
 }

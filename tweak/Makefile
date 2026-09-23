@@ -1,5 +1,6 @@
 TARGET := iphone:clang:latest:16.0
-ARCHS := arm64
+ARCHS = arm64
+THEOS_PACKAGE_SCHEME = rootless
 FINALPACKAGE := 1
 
 # version.txt at the repo root is the one version, bumped by Release Please's release PR. Theos

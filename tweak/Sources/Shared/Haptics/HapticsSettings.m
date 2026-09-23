@@ -7,16 +7,17 @@
 #import "Settings/SGModPage.h"
 #import "Haptics.h"
 
-static NSString *const kMusicHapticsInfo = @"The iPhone taps along with the drums and rumbles under the bass of whatever Spotify is playing, worked out from the sound as it plays, much like Music Haptics in Apple Music.\n\nIt follows the sound this iPhone plays, through its speaker or headphones, while Spotify is open: iOS plays no haptics for an app in the background, and a song playing on another device through Connect has no sound here to follow.";
+static NSString *const kMusicHapticsInfo = @"iPhone 会根据 Spotify 正在播放的音乐节奏产生触感反馈：鼓点时轻触，低音时震动。它会根据播放中的声音实时分析，类似 Apple Music 中的音乐触感功能。\n\n"
+@"它跟随此 iPhone 当前播放的声音，无论来自扬声器还是耳机。Spotify 在后台运行时，iOS 不会为应用播放触感反馈；通过 Connect 在其他设备播放的歌曲，也不会有可供此设备跟随的声音。";
 
 static NSArray<NSString *> *followsNames(void) {
-    return @[@"Everything", @"Beat", @"Bass"];
+    return @[@"全部", @"节拍", @"低音"];
 }
 
 static NSArray<NSString *> *followsNotes(void) {
-    return @[@"A tap on each kick and snare, and a rumble under the bass",
-             @"A tap on each kick and snare, no rumble",
-             @"A tap on each kick, and a rumble under the bass"];
+    return @[@"每次底鼓和军鼓都会触发震动，并在低音部分提供震感",
+             @"每次底鼓和军鼓都会触发震动，不包含低音震感",
+             @"每次底鼓都会触发震动，并在低音部分提供震感"];
 }
 
 static void strengthRange(NSString *key, NSInteger *minimum, NSInteger *maximum) {
@@ -40,7 +41,7 @@ SGMusicFollows SGMusicHapticsFollows(void) {
 static SGModRow *strengthRow(NSString *key, void (^changed)(void)) {
     NSInteger minimum, maximum;
     strengthRange(key, &minimum, &maximum);
-    return SGSliderRow(@"Strength", nil, minimum, maximum, SGStrengthStep,
+    return SGSliderRow(@"强度", nil, minimum, maximum, SGStrengthStep,
         ^double { return SGHapticsStrength(key) * 100; },
         ^(double value) {
             SGSetInt(key, lround(value));
@@ -50,26 +51,26 @@ static SGModRow *strengthRow(NSString *key, void (^changed)(void)) {
 }
 
 NSArray<SGModSection *> *SGVibrationsSections(void) {
-    SGModRow *controls = SGSwitchRow(@"Controls", nil, SGKeyControlHaptics);
+    SGModRow *controls = SGSwitchRow(@"控制", nil, SGKeyControlHaptics);
     SGModRow *controlStrength = strengthRow(SGKeyControlStrength, ^{
         // Felt as it is set: a tap at the new strength with each step.
         SGPlayFeedback(SGFeedbackAdd);
     });
     controlStrength.visible = ^BOOL { return SGEnabled(SGKeyControlHaptics); };
 
-    SGModRow *music = SGOptionRow(@"Music Haptics", nil, SGKeyMusicHaptics);
+    SGModRow *music = SGOptionRow(@"音乐触感", nil, SGKeyMusicHaptics);
     music.info = kMusicHapticsInfo;
     music.changed = ^(BOOL on) { SGSetMusicHapticsEnabled(on); };
     BOOL (^musicOn)(void) = ^BOOL { return SGFlag(SGKeyMusicHaptics, NO); };
     SGModRow *musicStrength = strengthRow(SGKeyMusicStrength, ^{ SGMusicHapticsSettingsChanged(); });
     musicStrength.visible = musicOn;
-    SGModRow *follows = SGChoiceRow(@"Follows", nil, SGKeyMusicFollows, followsNames(), SGMusicFollowsEverything);
+    SGModRow *follows = SGChoiceRow(@"关注", nil, SGKeyMusicFollows, followsNames(), SGMusicFollowsEverything);
     follows.choiceNotes = followsNotes();
     follows.chosen = ^(NSInteger index) { SGMusicHapticsSettingsChanged(); };
     follows.visible = musicOn;
 
     return @[
-        SGSection(@"Vibrations", @[SGWithSymbol(controls, @"hand.tap"), controlStrength]),
+        SGSection(@"触感反馈", @[SGWithSymbol(controls, @"hand.tap"), controlStrength]),
         SGSection(nil, @[SGWithSymbol(music, @"waveform"), musicStrength, follows]),
     ];
 }

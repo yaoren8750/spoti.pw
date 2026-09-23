@@ -1,6 +1,14 @@
 #import "SGGlass.h"
 #import "SGRuntime.h"
+@interface UIView (SGCornerPrivate)
+- (void)setCornerConfiguration:(id)configuration;
+@end
 
+@interface NSObject (SGCornerPrivate)
++ (id)capsuleConfiguration;
++ (id)configurationWithUniformRadius:(id)radius;
++ (id)fixedRadius:(CGFloat)radius;
+@end
 // +effectWithStyle: is the only initialiser UIGlassEffect has; a bare -init leaves the material
 // unresolved and the pane renders as a plain blur, while the capsule shape, which is the view's
 // own property, still comes out right. Spotify's own Reprise glass builds its effect the same way.

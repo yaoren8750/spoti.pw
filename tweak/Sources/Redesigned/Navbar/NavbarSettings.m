@@ -286,7 +286,7 @@ typedef NS_ENUM(NSInteger, SGRNavbarSection) {
             NSDictionary *entry = _entries[(NSUInteger)path.row];
             BOOL hidden = [entry[SGRNavbarHidden] boolValue];
             NSString *uri = entry[SGRNavbarURI];
-            SGFillCell(cell, entry[SGRNavbarTitle], hidden ? @"已隐藏" : (uri ?: @"Spotify 原生标签页“),
+            SGFillCell(cell, entry[SGRNavbarTitle], hidden ? @"已隐藏" : (uri ?: @"Spotify 原生标签页"),
                      hidden ? SGGrey() : nil, hidden ? @"eye.slash" : @"eye");
             break;
         }

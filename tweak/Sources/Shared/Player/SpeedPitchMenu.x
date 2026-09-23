@@ -194,7 +194,7 @@ static void placeTick(UISlider *slider) {
     _icon = [[UIImageView alloc] initWithImage:paintedSymbol(@"slider.horizontal.3", 20, UIImageSymbolWeightRegular, secondary())];
     _icon.contentMode = UIViewContentModeCenter;
     _title = makeLabel(font(UIFontTextStyleBody, UIFontWeightRegular, UIContentSizeCategoryExtraLarge), primary());
-    _title.text = @"Speed and pitch";
+    _title.text = @"速度和音调";
     _summary = makeLabel(monospacedDigits(font(UIFontTextStyleSubheadline, UIFontWeightRegular, UIContentSizeCategoryExtraLarge)), secondary());
     _summary.textAlignment = NSTextAlignmentRight;
     _chevron = [[UIImageView alloc] initWithImage:paintedSymbol(@"chevron.down", 13, UIImageSymbolWeightSemibold, secondary())];
@@ -208,15 +208,15 @@ static void placeTick(UISlider *slider) {
     [self addSubview:_panel];
     UIFont *nameFont = font(UIFontTextStyleSubheadline, UIFontWeightRegular, UIContentSizeCategoryExtraLarge);
     _speedName = makeLabel(nameFont, secondary());
-    _speedName.text = @"Speed";
+    _speedName.text = @"速度";
     _pitchName = makeLabel(nameFont, secondary());
-    _pitchName.text = @"Pitch";
+    _pitchName.text = @"音调";
     _speedValue = [self valueButton:@selector(resetSpeed)];
     _pitchValue = [self valueButton:@selector(resetPitch)];
     _speed = [self slider:kMinSpeed max:kMaxSpeed normal:1 minImage:@"tortoise.fill" maxImage:@"hare.fill"];
-    _speed.accessibilityLabel = @"Speed";
+    _speed.accessibilityLabel = @"速度";
     _pitch = [self slider:-kMaxPitch max:kMaxPitch normal:0 minImage:@"arrow.down" maxImage:@"arrow.up"];
-    _pitch.accessibilityLabel = @"Pitch";
+    _pitch.accessibilityLabel = @"音调";
     for (UIView *view in @[_speedName, _speedValue, _speed, _pitchName, _pitchValue, _pitch]) [_panel addSubview:view];
 
     [self refresh];
@@ -284,22 +284,22 @@ static NSString *pitchText(float pitch) {
 - (void)showValues {
     BOOL speedAllowed = SGPlayerSpeedAllowed(), pitchAvailable = SGPlayerPitchAvailable();
     [UIView performWithoutAnimation:^{
-        [_speedValue setTitle:speedAllowed ? speedText(_shownSpeed) : @"Unavailable here" forState:UIControlStateNormal];
-        [_pitchValue setTitle:pitchAvailable ? [pitchText(_shownPitch) stringByAppendingString:_shownPitch ? @" st" : @""] : @"Unavailable" forState:UIControlStateNormal];
+        [_speedValue setTitle:speedAllowed ? speedText(_shownSpeed) : @"此处不可用" forState:UIControlStateNormal];
+        [_pitchValue setTitle:pitchAvailable ? [pitchText(_shownPitch) stringByAppendingString:_shownPitch ? @"半音" : @""] : @"不可用" forState:UIControlStateNormal];
         [_speedValue layoutIfNeeded];
         [_pitchValue layoutIfNeeded];
     }];
     _speedValue.enabled = speedAllowed && _shownSpeed != 1;
     _pitchValue.enabled = pitchAvailable && _shownPitch != 0;
-    _speed.accessibilityValue = speedAllowed ? speedText(_shownSpeed) : @"Unavailable";
-    _pitch.accessibilityValue = _shownPitch == 0 ? @"Original pitch" : [NSString stringWithFormat:@"%.0f semitones %@", fabsf(_shownPitch), _shownPitch > 0 ? @"up" : @"down"];
+    _speed.accessibilityValue = speedAllowed ? speedText(_shownSpeed) : @"不可用";
+    _pitch.accessibilityValue = _shownPitch == 0 ? @"Original pitch" : [NSString stringWithFormat:@"%.0f 个半音 %@", fabsf(_shownPitch), _shownPitch > 0 ? @"升高" : @"降低"];
 
     NSMutableArray<NSString *> *changed = [NSMutableArray array];
     if (_shownSpeed != 1) [changed addObject:speedText(_shownSpeed)];
     if (_shownPitch != 0) [changed addObject:[pitchText(_shownPitch) stringByAppendingString:@" st"]];
     _summary.text = sg_open ? nil : [changed componentsJoinedByString:@"  "];
-    _row.accessibilityLabel = changed.count ? [@"Speed and pitch, " stringByAppendingString:[changed componentsJoinedByString:@", "]] : @"Speed and pitch";
-    _row.accessibilityValue = sg_open ? @"Expanded" : @"Collapsed";
+    _row.accessibilityLabel = changed.count ? [@"速度和音调," stringByAppendingString:[changed componentsJoinedByString:@", "]] : @"速度和音调";
+    _row.accessibilityValue = sg_open ? @"展开" : @"收起";
     _chevron.transform = sg_open ? CGAffineTransformMakeRotation(M_PI) : CGAffineTransformIdentity;
     _panel.alpha = sg_open ? 1 : 0;
     _panel.accessibilityElementsHidden = !sg_open;

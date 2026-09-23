@@ -53,7 +53,6 @@ mod.value = ^NSString *{ return @(SG_VERSION); };
 // 音效作用于声音处理，因此两个界面都会显示，并在箭头旁显示当前功能。
 
 SGModRow *audioEffects = pageRow(@"音效", @"slider.vertical.3", ^UIViewController *{ return SGDSPSettingsPage(); });
-
     audioEffects.value = ^NSString *{ return SGDSPSummary(); };
     // Home & Library holds only the native look's switches, so the redesign has no such page; the
     // Live Activity works under both, and only where ActivityKit's card does.
@@ -101,7 +100,7 @@ SGModRow *audioEffects = pageRow(@"音效", @"slider.vertical.3", ^UIViewControl
     if (!(self = [super initWithFrame:frame])) return nil;
     _icon = SGSymbolView(@"slider.horizontal.3", 20, UIImageSymbolWeightRegular, 24);
     _title = [UILabel new];
-    _title.text = @"模组设置";
+    _title.text = @"修改设置";
     _title.textColor = UIColor.whiteColor;
     _chevron = SGSymbolView(@"chevron.right", 11, UIImageSymbolWeightSemibold, 12);
     for (UIView *v in @[_icon, _title, _chevron]) [self addSubview:v];

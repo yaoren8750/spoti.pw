@@ -4,7 +4,7 @@
 #import "App/About/About.h"
 #import "App/Pages.h"
 #import "App/Donate/Donate.h"
-
+#import <objc/message.h>
 static const CGFloat kMargin = 24;
 static const CGFloat kCardRadius = 22;
 
@@ -28,7 +28,13 @@ static char kPaneKey;
 
 static UIButton *glassButton(NSString *title) {
     UIButtonConfiguration *config;
-    if (@available(iOS 26.0, *)) config = [UIButtonConfiguration prominentGlassButtonConfiguration];
+    if (@available(iOS 26.0, *)) {
+        SEL sel = NSSelectorFromString(@"prominentGlassButtonConfiguration");
+
+        if ([UIButtonConfiguration respondsToSelector:sel]) {
+            config = ((id (*)(id, SEL))objc_msgSend)(UIButtonConfiguration.class, sel);
+        }
+    }
     else config = [UIButtonConfiguration filledButtonConfiguration];
     config.cornerStyle = UIButtonConfigurationCornerStyleCapsule;
     config.baseBackgroundColor = SGGreen();
@@ -164,7 +170,7 @@ static UIButton *glassButton(NSString *title) {
     UIImageView *icon = SGSymbolView(@"exclamationmark.triangle.fill", 15, UIImageSymbolWeightSemibold, 22);
     icon.tintColor = UIColor.systemYellowColor;
     UILabel *text = [UILabel new];
-    text.text = @"The redesign is a beta. Expect lags, freezes and bugs, and if you find one, please report it.";
+    text.text = @"新版界面目前处于 Beta 测试阶段，可能存在卡顿、闪退或异常。如果遇到问题，请提交反馈。";
     text.font = [UIFont systemFontOfSize:13];
     text.textColor = SGGrey();
     text.numberOfLines = 0;
@@ -182,9 +188,10 @@ static UIButton *glassButton(NSString *title) {
             SGOpenURL(url);
         }]];
     };
+
     UIStackView *links = [[UIStackView alloc] initWithArrangedSubviews:@[
-        link(@"Report a bug", 32, [SGRepoURL stringByAppendingString:@"/issues"]),
-        link(@"Ask on Discord", 16, SGDiscordURL),
+        link(@"反馈 Bug", 32, [SGRepoURL stringByAppendingString:@"/issues"]),
+        link(@"询问 Discord", 16, SGDiscordURL),
     ]];
 
     UIStackView *note = [[UIStackView alloc] initWithArrangedSubviews:@[line, links]];
@@ -212,13 +219,13 @@ static UIButton *glassButton(NSString *title) {
 
     BOOL glass = SGRedesignAvailable();
     UILabel *heading = [UILabel new];
-    heading.text = glass ? @"Pick your look." : @"Your look.";
+    heading.text = glass ? @"选择你的界面风格" : @"你的界面风格";
     heading.font = [UIFont systemFontOfSize:30 weight:UIFontWeightBold];
     heading.textColor = UIColor.whiteColor;
     heading.numberOfLines = 0;
 
-    _redesigned = [[SGLookCard alloc] initWithSymbol:@"sparkles" title:@"Redesigned" subtitle:@"Looks like Apple Music. Better lyrics, Live Activity."];
-    _legacy = [[SGLookCard alloc] initWithSymbol:@"slider.horizontal.3" title:@"Legacy" subtitle:@"More options, still looks like Spotify."];
+    _redesigned = [[SGLookCard alloc] initWithSymbol:@"sparkles" title:@"新版设计" subtitle:@"类似 Apple Music 风格，拥有更好的歌词体验和实时活动支持。"];
+    _legacy = [[SGLookCard alloc] initWithSymbol:@"slider.horizontal.3" title:@"经典版" subtitle:@"更多选项，保持 Spotify 原始风格。"];
     for (SGLookCard *card in @[_redesigned, _legacy]) [card addTarget:self action:@selector(picked:) forControlEvents:UIControlEventTouchUpInside];
     // The first launch offers the redesign; the tour again from the Mod page shows the stored look.
     BOOL redesign = glass && (SGFlag(SGKeyOnboardingSeen, NO) ? SGRedesignedUIStored() : YES);
@@ -227,7 +234,7 @@ static UIButton *glassButton(NSString *title) {
     // Liquid Glass is drawn by iOS 26 and by nothing before it, so on an older phone the card stays
     // on the page to say so and the legacy look is the only one left.
     if (!glass) {
-        [_redesigned makeUnavailable:[NSString stringWithFormat:@"Needs iOS 26. This phone runs iOS %@.", UIDevice.currentDevice.systemVersion]];
+        [_redesigned makeUnavailable:[NSString stringWithFormat:@"需要 iOS 26。当前设备运行的是 iOS %@。", UIDevice.currentDevice.systemVersion]];
         _legacy.enabled = NO;
     }
     _beta = [self betaNote];
@@ -247,10 +254,10 @@ static UIButton *glassButton(NSString *title) {
     [scroll addSubview:column];
     [self.view addSubview:scroll];
 
-    _primary = glassButton(@"Start listening");
+    _primary = glassButton(@"开始播放");
     [_primary addTarget:self action:@selector(finish) forControlEvents:UIControlEventTouchUpInside];
     UILabel *footer = [UILabel new];
-    footer.text = @"Hold Home to open settings.";
+    footer.text = @"长按主页打开设置。";
     footer.font = [UIFont systemFontOfSize:13];
     footer.textColor = SGGrey();
     footer.textAlignment = NSTextAlignmentCenter;
@@ -314,7 +321,7 @@ static UIButton *glassButton(NSString *title) {
 
 - (void)refresh {
     UIButtonConfiguration *config = _primary.configuration;
-    NSString *title = self.needsRestart ? @"Restart Spotify" : @"Start listening";
+    NSString *title = self.needsRestart ? @"重启Spotify" : @"开始播放";
     config.attributedTitle = [[NSAttributedString alloc] initWithString:title attributes:@{NSFontAttributeName: [UIFont systemFontOfSize:17 weight:UIFontWeightSemibold]}];
     _primary.configuration = config;
 }

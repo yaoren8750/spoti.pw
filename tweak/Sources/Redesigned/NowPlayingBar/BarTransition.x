@@ -18,11 +18,13 @@
 // (npbSnapshotView, tabBarSnapshotView); which of the two 9.1.78 runs is not known, so both are hooked
 // and the log says which fired.
 #import "Core/SGCore.h"
-
 @interface SPTBarOverlayPresentationTransition : NSObject
+
 - (UIView *)bottomBarView;
 - (UIView *)tabBarView;
+
 @end
+
 
 // The panes to copy: glass views and UIKit's tab bar platters, whose glass is not a UIVisualEffectView.
 // The source itself may be hidden: Spotify renders the closed bar and hides it again before handing
@@ -49,7 +51,18 @@ static UIVisualEffectView *copyPane(UIView *pane) {
     if (platter) {
         SGShapeGlass(glass, pane.bounds.size.height / 2, YES);
     } else if ([pane respondsToSelector:@selector(cornerConfiguration)] && [glass respondsToSelector:@selector(setCornerConfiguration:)]) {
-        [glass setCornerConfiguration:[(id)pane cornerConfiguration]];
+        id corner = nil;
+
+if ([(id)pane respondsToSelector:@selector(cornerConfiguration)]) {
+    corner = [(id)pane performSelector:@selector(cornerConfiguration)];
+}
+
+if (corner &&
+    [(id)glass respondsToSelector:@selector(setCornerConfiguration:)]) {
+
+    [(id)glass performSelector:@selector(setCornerConfiguration:)
+                    withObject:corner];
+}
     }
     glass.layer.cornerRadius = pane.layer.cornerRadius;
     glass.layer.cornerCurve = pane.layer.cornerCurve;
