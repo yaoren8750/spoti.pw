@@ -155,7 +155,7 @@ NSArray<SGLyricsProvider *> *SGLyricsAllProviders(void) {
         };
 
         all = @[
-            make(@"spicylyrics", @"Spicy Lyrics", @"音节时间轴，使用你的 Spotify Token", SGSpicyLyricsAsk),
+            
             make(@"binilyrics", @"BiniLyrics", @"Apple Music 逐词时间轴", SGBiniLyricsAsk),
             make(@"musixmatch", @"Musixmatch", @"Spotify 授权歌词库", SGMusixmatchAsk),
             make(@"unison", @"Unison", @"手动校准时间轴，歌曲较少", SGUnisonAsk),
@@ -167,7 +167,7 @@ NSArray<SGLyricsProvider *> *SGLyricsAllProviders(void) {
 
             all = @[
 
-                make(@"spicylyrics", @"Spicy Lyrics", @"音节时间轴，使用你的 Spotify Token", SGSpicyLyricsAsk),
+                
 
                 make(@"binilyrics", @"BiniLyrics", @"Apple Music 逐词时间轴", SGBiniLyricsAsk),
 
