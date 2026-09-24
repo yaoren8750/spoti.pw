@@ -140,22 +140,26 @@ NSArray<SGLyricsProvider *> *SGLyricsAllProviders(void) {
     static NSArray<SGLyricsProvider *> *all;
     static dispatch_once_t once;
     dispatch_once(&once, ^{
+
         SGLyricsProvider *(^make)(NSString *, NSString *, NSString *, SGLyricsAsk) =
         ^(NSString *key, NSString *name, NSString *detail, SGLyricsAsk ask) {
+
             SGLyricsProvider *provider = [SGLyricsProvider new];
+
             provider.key = key;
             provider.name = name;
             provider.detail = detail;
+
             // A source that matches by Spotify's own track id has everything it needs from the
             // start; the rest wait for the player to name the track before they can search.
-            provider.needsName = ![@[@"musixmatch", @"spicylyrics"] containsObject:key];
+            provider.needsName = ![@[@"musixmatch"] containsObject:key];
 
             provider.ask = ask;
+
             return provider;
         };
 
         all = @[
-            
             make(@"binilyrics", @"BiniLyrics", @"Apple Music 逐词时间轴", SGBiniLyricsAsk),
             make(@"musixmatch", @"Musixmatch", @"Spotify 授权歌词库", SGMusixmatchAsk),
             make(@"unison", @"Unison", @"手动校准时间轴，歌曲较少", SGUnisonAsk),
@@ -163,27 +167,8 @@ NSArray<SGLyricsProvider *> *SGLyricsAllProviders(void) {
             make(@"lrclib", @"LRCLIB", @"逐行时间轴，开放备用来源", SGLrcLibAsk),
         ];
 
-            };
-
-            all = @[
-
-                
-
-                make(@"binilyrics", @"BiniLyrics", @"Apple Music 逐词时间轴", SGBiniLyricsAsk),
-
-                make(@"musixmatch", @"Musixmatch", @"Spotify 授权歌词库", SGMusixmatchAsk),
-
-                make(@"unison", @"Unison", @"手动校准时间轴，歌曲较少", SGUnisonAsk),
-
-                make(@"netease", @"NetEase", @"逐词时间轴，经过过滤", SGNetEaseAsk),
-
-                make(@"lrclib", @"LRCLIB", @"逐行时间轴，开放备用来源", SGLrcLibAsk),
-
-            ];
-
     });
     return all;
-}
 
 SGLyricsProvider *SGLyricsProviderFor(NSString *key) {
     for (SGLyricsProvider *provider in SGLyricsAllProviders()) {
