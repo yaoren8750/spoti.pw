@@ -4,7 +4,7 @@
 
 static UIViewController *martiniPage(void) {
     return [[SGModPage alloc] initWithTitle:@"AI Chat (Martini)" intro:SGRestartNote sections:@[
-        SGSection(@"首页", @[
+        SGSection(@"主页", @[
             SGFlagRow(@"聊天入口", @"ios-home-evopage-impl.interactive_entrypoint_enabled"),
             SGFlagRow(@"启用 Martini 后端", @"ios-home-evopage-impl.interactive_entrypoint_martini_enabled"),
             SGFlagRow(@"浮动聊天", @"ios-home-evopage-impl.interactive_entrypoint_floating_chat_enabled"),

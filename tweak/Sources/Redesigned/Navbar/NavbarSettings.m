@@ -11,7 +11,7 @@
 // The picker still asks the dispatcher about each one and leaves out what it has nowhere to send.
 static NSArray<NSDictionary *> *tabPresets(void) {
     return @[
-        @{SGRNavbarTitle: @"首页", SGRNavbarURI: @"spotify:home", SGRNavbarIcon: @"home"},
+        @{SGRNavbarTitle: @"主页", SGRNavbarURI: @"spotify:home", SGRNavbarIcon: @"home"},
         @{SGRNavbarTitle: @"搜索", SGRNavbarURI: @"spotify:search", SGRNavbarIcon: @"search"},
         @{SGRNavbarTitle: @"你的音乐库", SGRNavbarURI: @"spotify:collection", SGRNavbarIcon: @"collection"},
         @{SGRNavbarTitle: @"喜欢的歌曲", SGRNavbarURI: @"spotify:collection:tracks", SGRNavbarIcon: @"heart"},

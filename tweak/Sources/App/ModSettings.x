@@ -66,7 +66,7 @@ SGModRow *audioEffects = pageRow(@"音效", @"slider.vertical.3", ^UIViewControl
         liveActivity.value = ^NSString *{ return SGLiveActivitySummary(); };
         [parts addObject:liveActivity];
     }
-    if (!SGRedesignedUIStored()) [parts addObject:pageRow(@"首页&音乐库", @"house", ^UIViewController *{ return SGHomeSettingsPage(); })];
+    if (!SGRedesignedUIStored()) [parts addObject:pageRow(@"主页&音乐库", @"house", ^UIViewController *{ return SGHomeSettingsPage(); })];
     [sections addObjectsFromArray:@[
         SGAppearanceSection(),
         SGSection(nil, parts),

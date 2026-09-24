@@ -28,7 +28,7 @@ static UIViewController *libraryPage(void) {
         SGSection(@"媒体库", @[
             SGFlagRow(@"更紧凑的列表", @"ios-feature-yourlibaryx.denser_rows_enabled"),
             SGFlagRow(@"按最近更新排序播放列表", @"ios-feature-yourlibaryx.recently_updated_playlists_sort_enabled"),
-            SGFlagRow(@"按最近更新排序艺术家", @"ios-feature-yourlibaryx.recently_updated_artists_sort_enabled"),
+            SGFlagRow(@"按最近更新排序艺人", @"ios-feature-yourlibaryx.recently_updated_artists_sort_enabled"),
             SGFlagRow(@"最近播放", @"ios-feature-yourlibaryx.recents_enabled"),
             SGFlagRow(@"最近播放排序方式", @"ios-feature-yourlibaryx.recents_sort_order_enabled"),
             SGFlagRow(@"媒体库设置", @"ios-feature-yourlibaryx.library_settings_enabled"),
@@ -50,7 +50,7 @@ UIViewController *SGHomeSettingsPage(void) {
             SGWithSymbol(SGPageRow(@"播放列表", ^UIViewController *{ return SGPlaylistSettingsPage(); }), @"music.note.list"),
             SGWithSymbol(SGPageRow(@"媒体库", ^UIViewController *{ return libraryPage(); }), @"books.vertical"),
             SGWithSymbol(SGPageRow(@"专辑", ^UIViewController *{ return SGAlbumSettingsPage(); }), @"square.stack"),
-            SGWithSymbol(SGPageRow(@"艺术家", ^UIViewController *{ return SGArtistSettingsPage(); }), @"music.mic"),
+            SGWithSymbol(SGPageRow(@"艺人", ^UIViewController *{ return SGArtistSettingsPage(); }), @"music.mic"),
         ]),
         SGSection(@"主页", @[
             SGWithSymbol(gradient, @"rectangle.tophalf.inset.filled"),
@@ -66,5 +66,5 @@ UIViewController *SGHomeSettingsPage(void) {
             SGKillRow(@"DJ beta 标识", @"ios-home-evopage-impl.dj_mdc_beta_badge_enabled"),
         ]),
     ];
-    return [[SGModPage alloc] initWithTitle:@"主页与媒体库" intro:nil sections:sections footer:nil];
+    return [[SGModPage alloc] initWithTitle:@"主页&媒体库" intro:nil sections:sections footer:nil];
 }

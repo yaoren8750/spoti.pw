@@ -7,7 +7,7 @@
 // name of the SPTEncoreIcon class method that draws its glyph.
 static NSArray<NSDictionary *> *tabPresets(void) {
     return @[
-        @{SGNavbarTitle: @"首页", SGNavbarURI: @"spotify:home", SGNavbarIcon: @"home"},
+        @{SGNavbarTitle: @"主页", SGNavbarURI: @"spotify:home", SGNavbarIcon: @"home"},
         @{SGNavbarTitle: @"搜索", SGNavbarURI: @"spotify:search", SGNavbarIcon: @"search"},
         @{SGNavbarTitle: @"你的音乐库", SGNavbarURI: @"spotify:collection", SGNavbarIcon: @"collection"},
         @{SGNavbarTitle: @"喜欢的歌曲", SGNavbarURI: @"spotify:collection:tracks", SGNavbarIcon: @"heart"},
