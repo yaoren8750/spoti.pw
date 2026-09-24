@@ -448,15 +448,18 @@ static UIView *valueAndChevron(NSString *text) {
     NSDictionary *grey = @{NSFontAttributeName: SGSubtitleFont(), NSForegroundColorAttributeName: SGGrey()};
     NSMutableAttributedString *text = [[NSMutableAttributedString alloc]
         initWithString:@"JamesDSP 由 James Fung (james34602) 开发。其核心引擎 libjamesdsp 是基于 GPL 协议的自由软件。\n" attributes:grey];
-
     NSArray<NSArray<NSString *> *> *links = @[
         @[@"JamesDSPManager", @"https://github.com/james34602/JamesDSPManager"],
         @[@"RootlessJamesDSP", @"https://github.com/timschneeb/RootlessJamesDSP"],
-    
     ];
+
     for (NSArray<NSString *> *part in links) {
         NSMutableDictionary *attributes = [grey mutableCopy];
-        if (part[1].length) attributes[NSLinkAttributeName] = [NSURL URLWithString:part[1]];
+
+        if (part[1].length) {
+            attributes[NSLinkAttributeName] = [NSURL URLWithString:part[1]];
+        }
+
         [text appendAttributedString:[[NSAttributedString alloc] initWithString:part[0] attributes:attributes]];
     }
     _creditsText = [UITextView new];
