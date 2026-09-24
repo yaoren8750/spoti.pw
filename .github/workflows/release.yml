@@ -1,20 +1,32 @@
-name: Build Deb
+# Every push to main updates one release PR (version.txt and CHANGELOG.md from the feat:/fix:
+# commits since the last release). Merging it tags vX.Y.Z and makes the GitHub Release, and the
+# second job builds the tweak's .deb and attaches it. No IPA is built or published here.
+name: Release
 
 on:
   push:
     branches: [main]
-  workflow_dispatch:
 
 permissions:
-  contents: read
+  contents: write
+  pull-requests: write
 
 jobs:
-  deb:
-    runs-on: macos-latest
+  release-please:
+    runs-on: ubuntu-latest
+    outputs:
+      created: ${{ steps.release.outputs.release_created }}
+      tag: ${{ steps.release.outputs.tag_name }}
+    steps:
+      - uses: googleapis/release-please-action@v4
+        id: release
 
+  deb:
+    needs: release-please
+    if: needs.release-please.outputs.created == 'true'
+    runs-on: macos-latest
     env:
       THEOS: ${{ github.workspace }}/theos
-
     steps:
       - uses: actions/checkout@v5
 
@@ -22,8 +34,7 @@ jobs:
         with:
           xcode-version: latest-stable
 
-      - name: Install Theos
-        uses: actions/checkout@v5
+      - uses: actions/checkout@v5
         with:
           repository: theos/theos
           path: theos
@@ -32,7 +43,8 @@ jobs:
       - name: Install tools
         run: brew install make dpkg ldid
 
-      # 读取 flag 表
+      # The flag table is read out of Spotify's binary (make flags), so it comes from a secret
+      # instead of an IPA: gzip -9c tweak/Sources/Shared/Flags/SGFlagList.m | base64 | gh secret set SG_FLAG_LIST
       - name: Flag table
         env:
           SG_FLAG_LIST: ${{ secrets.SG_FLAG_LIST }}
@@ -40,13 +52,10 @@ jobs:
           [ -n "$SG_FLAG_LIST" ] || { echo "::error::the SG_FLAG_LIST secret is not set"; exit 1; }
           echo "$SG_FLAG_LIST" | base64 -d | gunzip > tweak/Sources/Shared/Flags/SGFlagList.m
 
-      - name: Build deb
-        run: |
-          env -u MAKELEVEL gmake -C tweak clean package
+      - name: Build
+        run: env -u MAKELEVEL gmake -C tweak clean package
 
-      # 保存 deb 到 Actions 构建产物
-      - name: Upload deb artifact
-        uses: actions/upload-artifact@v4
-        with:
-          name: spotifyglass-deb
-          path: tweak/packages/*.deb
+      - name: Attach to the release
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: gh release upload "${{ needs.release-please.outputs.tag }}" tweak/packages/*.deb --clobber
