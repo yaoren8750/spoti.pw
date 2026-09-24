@@ -64,7 +64,7 @@ NSArray<SGModSection *> *SGVibrationsSections(void) {
     BOOL (^musicOn)(void) = ^BOOL { return SGFlag(SGKeyMusicHaptics, NO); };
     SGModRow *musicStrength = strengthRow(SGKeyMusicStrength, ^{ SGMusicHapticsSettingsChanged(); });
     musicStrength.visible = musicOn;
-    SGModRow *follows = SGChoiceRow(@"关注", nil, SGKeyMusicFollows, followsNames(), SGMusicFollowsEverything);
+    SGModRow *follows = SGChoiceRow(@"触觉跟随", nil, SGKeyMusicFollows, followsNames(), SGMusicFollowsEverything);
     follows.choiceNotes = followsNotes();
     follows.chosen = ^(NSInteger index) { SGMusicHapticsSettingsChanged(); };
     follows.visible = musicOn;

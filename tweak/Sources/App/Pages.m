@@ -97,7 +97,7 @@ UIViewController *SGPlayerSettingsPage(void) {
     ])];
     NSMutableArray<SGModRow *> *pages = [NSMutableArray array];
     if (native) {
-        [pages addObject:SGWithSymbol(SGPageRow(@"正在播放栏", ^UIViewController *{ return SGNowPlayingBarSettingsPage(); }), @"rectangle.bottomthird.inset.filled")];
+        [pages addObject:SGWithSymbol(SGPageRow(@"播放栏", ^UIViewController *{ return SGNowPlayingBarSettingsPage(); }), @"rectangle.bottomthird.inset.filled")];
         [pages addObject:SGWithSymbol(SGPageRow(@"播放列表与设备", ^UIViewController *{ return SGQueueSettingsPage(); }), @"text.line.first.and.arrowtriangle.forward")];
     } else {
         [pages addObject:SGWithSymbol(SGPageRow(@"正在播放", ^UIViewController *{ return SGRNowPlayingBarSettingsPage(); }), @"rectangle.bottomthird.inset.filled")];

@@ -41,7 +41,7 @@ UIViewController *SGAboutPage(void) {
     // The row reads out where the build stands and opens the changelog of everything newer than it.
     SGModRow *updates = SGPageRow(@"更新", ^UIViewController *{ return SGUpdatePage(); });
     updates.value = ^NSString *{ return SGUpdateStatus(); };
-    return [[SGModPage alloc] initWithTitle:@"修改 " intro:nil sections:@[
+    return [[SGModPage alloc] initWithTitle:@"模组 " intro:nil sections:@[
         SGSection(nil, @[
             updates,
             SGStatRow(@"版本", ^NSString *{ return @(SG_VERSION); }),
