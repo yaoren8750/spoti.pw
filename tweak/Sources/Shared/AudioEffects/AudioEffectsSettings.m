@@ -145,20 +145,38 @@ void SGDSPResetAll(void) {
 #pragma mark - lists
 
 NSArray<NSString *> *SGDSPConvolverModeNames(void) {
-    return @[@"Original", @"Trimmed", @"Minimum phase"];
+    return @[@"原始", @"裁剪", @"最小相位"];
 }
 
 NSArray<NSString *> *SGDSPCrossfeedModeNames(void) {
-    return @[@"Jan Meier (650 Hz, 9.5 dB)", @"Chu Moy (700 Hz, 6 dB)", @"Default (700 Hz, 4.5 dB)"];
+    return @[@"Jan Meier (650 Hz, 9.5 dB)", @"Chu Moy (700 Hz, 6 dB)", @"默认 (700 Hz, 4.5 dB)"];
 }
 
 NSArray<NSString *> *SGDSPReverbPresetNames(void) {
-    return @[@"Ambience", @"Small room", @"Medium room", @"Large room", @"Chamber", @"Plate", @"Small hall", @"Large hall", @"Cathedral"];
+    return @[@"环境氛围",
+             @"小房间",
+             @"中型房间",
+             @"大房间",
+             @"室内混响",
+             @"钢板混响",
+             @"小厅堂",
+             @"大厅",
+             @"大教堂"];
 }
 
 NSArray<NSString *> *SGDSPEqualizerPresetNames(void) {
-    return @[@"Flat", @"Bass", @"Loudness", @"Treble", @"Vocal", @"Warm", @"Bright", @"Rock", @"Electronic", @"Acoustic",
-             @"Classical", @"Podcast"];
+    return @[@"平坦",
+             @"低音",
+             @"响度",
+             @"高音",
+             @"人声",
+             @"温暖",
+             @"明亮",
+             @"摇滚",
+             @"电子",
+             @"原声",
+             @"古典",
+             @"播客"];
 }
 
 NSArray<NSNumber *> *SGDSPEqualizerPreset(NSInteger index) {

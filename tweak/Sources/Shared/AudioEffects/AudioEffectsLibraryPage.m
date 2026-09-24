@@ -21,7 +21,7 @@ static NSString *switchKeyOf(SGDSPFileKind kind) {
 
 NSString *SGDSPChosenFile(SGDSPFileKind kind) {
     NSString *name = SGDSPString(fileKeyOf(kind));
-    return name.length ? name : @"None";
+    return name.length ? name : @"未选择";
 }
 
 // ".eel", ".vdc", ".wav, .flac or .irs".
@@ -36,13 +36,13 @@ static NSString *extensionList(SGDSPFileKind kind) {
 
 static void showAlert(UIViewController *owner, NSString *title, NSString *message) {
     UIAlertController *alert = [UIAlertController alertControllerWithTitle:title message:message preferredStyle:UIAlertControllerStyleAlert];
-    [alert addAction:[UIAlertAction actionWithTitle:@"OK" style:UIAlertActionStyleCancel handler:nil]];
+    [alert addAction:[UIAlertAction actionWithTitle:@"确定" style:UIAlertActionStyleCancel handler:nil]];
     [owner presentViewController:alert animated:YES completion:nil];
 }
 
 static UITableViewCell *errorCell(UITableView *table, NSString *text) {
     UITableViewCell *cell = SGDequeueCell(table, @"error");
-    SGFillCell(cell, @"Not applied", text, SGRed(), @"exclamationmark.triangle.fill");
+    SGFillCell(cell, @"未生效", text, SGRed(), @"exclamationmark.triangle.fill");
     UIListContentConfiguration *content = (UIListContentConfiguration *)cell.contentConfiguration;
     content.secondaryTextProperties.color = SGRed();
     cell.contentConfiguration = content;
@@ -150,13 +150,13 @@ static UITableViewCell *tiledCell(UITableView *table, NSString *title, NSString 
     if (!(self = [super initWithStyle:UITableViewStyleInsetGrouped])) return nil;
     _kind = kind;
     self.errorKey = switchKeyOf(kind);
-    self.title = kind == SGDSPFileImpulseResponse ? @"Impulse responses" : kind == SGDSPFileDDC ? @"DDC files" : @"Scripts";
+    self.title = kind == SGDSPFileImpulseResponse ? @"脉冲响应" : kind == SGDSPFileDDC ? @"DDC 文件" : @"脚本";
     return self;
 }
 
 - (void)viewDidLoad {
     [super viewDidLoad];
-    _footer = SGNote(@"Choosing a file uses it straight away. Swipe left on one to delete it.");
+    _footer = SGNote(@"选择文件后会立即应用。向左滑动即可删除文件。");
     self.tableView.tableFooterView = _footer;
 }
 
@@ -183,12 +183,12 @@ static UITableViewCell *tiledCell(UITableView *table, NSString *title, NSString 
 - (UITableViewCell *)tableView:(UITableView *)table cellForRowAtIndexPath:(NSIndexPath *)path {
     if (path.section == 0) return [self errorCellIn:table];
     if (path.section == 2) {
-        NSString *subtitle = [NSString stringWithFormat:@"A %@ file from Files", extensionList(_kind)];
-        return tiledCell(table, @"Import file…", subtitle, @"square.and.arrow.down", nil);
+        NSString *subtitle = [NSString stringWithFormat:@"从「文件」中导入 %@ 文件", extensionList(_kind)];
+        return tiledCell(table, @"导入文件…", subtitle, @"square.and.arrow.down", nil);
     }
     UITableViewCell *cell = SGDequeueCell(table, @"file");
     if (!_files.count) {
-        SGFillCell(cell, @"No files yet", nil, SGGrey(), nil);
+        SGFillCell(cell, @"暂无文件", nil, SGGrey(), nil);
         cell.accessibilityTraits = UIAccessibilityTraitNone;
         return cell;
     }
@@ -223,7 +223,7 @@ static UITableViewCell *tiledCell(UITableView *table, NSString *title, NSString 
 - (UISwipeActionsConfiguration *)tableView:(UITableView *)table trailingSwipeActionsConfigurationForRowAtIndexPath:(NSIndexPath *)path {
     if (path.section != 1 || !_files.count) return nil;
     NSString *name = _files[(NSUInteger)path.row];
-    UIContextualAction *delete = [UIContextualAction contextualActionWithStyle:UIContextualActionStyleDestructive title:@"Delete"
+    UIContextualAction *delete = [UIContextualAction contextualActionWithStyle:UIContextualActionStyleDestructive title:@"删除"
         handler:^(UIContextualAction *action, UIView *view, void (^done)(BOOL)) {
             [self deleteFile:name at:path];
             done(YES);
@@ -235,7 +235,7 @@ static UITableViewCell *tiledCell(UITableView *table, NSString *title, NSString 
 // The chosen file going leaves the effect with none, rather than naming a file that is not there.
 - (void)deleteFile:(NSString *)name at:(NSIndexPath *)path {
     if (!SGDSPDeleteFile(_kind, name)) {
-        showAlert(self, @"Could not delete the file", nil);
+        showAlert(self, @"无法删除文件", nil);
         return;
     }
     if ([name isEqualToString:SGDSPString(fileKeyOf(_kind))]) SGDSPSetString(fileKeyOf(_kind), @"");
@@ -256,13 +256,13 @@ static UITableViewCell *tiledCell(UITableView *table, NSString *title, NSString 
     NSURL *url = urls.firstObject;
     if (!url) return;
     if (![SGDSPFileExtensions(_kind) containsObject:url.pathExtension.lowercaseString]) {
-        showAlert(self, @"Not a file this effect takes", [NSString stringWithFormat:@"Pick a %@ file.", extensionList(_kind)]);
+        showAlert(self, @"不支持的文件类型", [NSString stringWithFormat:@"请选择 %@ 文件。", extensionList(_kind)]);
         return;
     }
     NSError *error = nil;
     NSString *name = SGDSPImportFile(_kind, url, &error);
     if (!name) {
-        showAlert(self, @"Could not import the file", error.localizedDescription);
+        showAlert(self, @"无法导入文件", error.localizedDescription);
         return;
     }
     SGDSPSetString(fileKeyOf(_kind), name);
@@ -298,15 +298,16 @@ typedef NS_ENUM(NSInteger, SGGraphicEqRow) {
 
 - (instancetype)init {
     if (!(self = [super initWithStyle:UITableViewStyleInsetGrouped])) return nil;
-    self.title = @"Graphic EQ";
+    self.title = @"图形均衡器";
     self.errorKey = SGKeyDSPGraphicEq;
     return self;
 }
 
 - (void)viewDidLoad {
     [super viewDidLoad];
-    _intro = SGNote(@"AutoEq's GraphicEQ format: \"GraphicEQ:\", then a frequency and a gain in dB per point, "
-                     "separated by semicolons. Paste the GraphicEQ file for your headphones, or edit the text and save.");
+    _intro = SGNote(@"AutoEq 的 GraphicEQ 格式：以 \"GraphicEQ:\" 开头，"
+                    "每个点包含频率和 dB 增益，并用分号分隔。"
+                    "粘贴适用于耳机的 GraphicEQ 文件，或编辑内容后保存。");
     self.tableView.tableHeaderView = _intro;
     self.tableView.keyboardDismissMode = UIScrollViewKeyboardDismissModeInteractive;
 
@@ -323,7 +324,7 @@ typedef NS_ENUM(NSInteger, SGGraphicEqRow) {
     _text.smartQuotesType = UITextSmartQuotesTypeNo;
     _text.smartDashesType = UITextSmartDashesTypeNo;
     _text.smartInsertDeleteType = UITextSmartInsertDeleteTypeNo;
-    _text.accessibilityLabel = @"GraphicEQ";
+    _text.accessibilityLabel = @"图形均衡器";
     _text.delegate = self;
     _text.text = SGDSPString(SGKeyDSPGraphicEqNodes);
 }
@@ -361,18 +362,18 @@ typedef NS_ENUM(NSInteger, SGGraphicEqRow) {
         [cell.contentView addSubview:_text];
         return cell;
     }
-    if (path.section == 3) return tiledCell(table, @"AutoEq", @"GraphicEQ files for thousands of headphones", @"safari", nil);
+    if (path.section == 3) return tiledCell(table, @"AutoEq", @"适用于数千款耳机的 GraphicEQ 文件", @"safari", nil);
     switch (path.row) {
         case SGGraphicEqSave: {
             BOOL edited = [self edited];
-            UITableViewCell *cell = tiledCell(table, @"Save", edited ? @"Use the text above" : @"Nothing changed", @"checkmark", edited ? nil : SGGrey());
+            UITableViewCell *cell = tiledCell(table, @"保存", edited ? @"使用上方文本" : @"没有更改", @"checkmark", edited ? nil : SGGrey());
             cell.accessibilityTraits = edited ? UIAccessibilityTraitButton : UIAccessibilityTraitButton | UIAccessibilityTraitNotEnabled;
             return cell;
         }
         case SGGraphicEqPaste:
-            return tiledCell(table, @"Paste", @"Replace the text with what you copied, and use it", @"doc.on.clipboard", nil);
+            return tiledCell(table, @"粘贴", @"替换文本并应用复制的内容", @"doc.on.clipboard", nil);
         default:
-            return tiledCell(table, @"Reset", @"Back to flat", @"arrow.counterclockwise", nil);
+            return tiledCell(table, @"重置", @"恢复为平直响应", @"arrow.counterclockwise", nil);
     }
 }
 
@@ -403,8 +404,8 @@ typedef NS_ENUM(NSInteger, SGGraphicEqRow) {
 - (void)save:(NSString *)text {
     NSString *line = [self cleaned:text ?: @""];
     if (![line.lowercaseString hasPrefix:@"graphiceq:"]) {
-        showAlert(self, text.length ? @"Not a GraphicEQ line" : @"Nothing to paste",
-                  @"It starts with \"GraphicEQ:\", then pairs of a frequency and a gain: GraphicEQ: 20 -1.2; 21 -1.1; …");
+        showAlert(self, text.length ? @"无效的 GraphicEQ 内容" : @"没有可粘贴的内容",
+                  @"格式以 \"GraphicEQ:\" 开头，后面为频率和增益值对，例如：GraphicEQ: 20 -1.2; 21 -1.1; …");
         return;
     }
     [_text resignFirstResponder];
