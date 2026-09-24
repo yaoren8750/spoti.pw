@@ -454,7 +454,7 @@ static UIView *valueAndChevron(NSString *text) {
         @[@"RootlessJamesDSP", @"https://github.com/timschneeb/RootlessJamesDSP"],
     
     ];
-    for (NSArray<NSString *> *part in parts) {
+    for (NSArray<NSString *> *part in links) {
         NSMutableDictionary *attributes = [grey mutableCopy];
         if (part[1].length) attributes[NSLinkAttributeName] = [NSURL URLWithString:part[1]];
         [text appendAttributedString:[[NSAttributedString alloc] initWithString:part[0] attributes:attributes]];
