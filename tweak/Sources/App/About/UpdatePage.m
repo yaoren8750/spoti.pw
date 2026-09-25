@@ -180,24 +180,24 @@ static NSArray<SGUpdateRelease *> *releasesToShow(void) {
 }
 
 - (NSString *)introText {
-
+    
     SGUpdateRelease *newest = SGUpdateNewestRelease();
-
+    
     if (!newest)
         return [NSString stringWithFormat:@"当前版本为 %s。尚未向 GitHub 请求更新信息。", SG_VERSION];
-
+    
     NSString *date = longDate(newest.date);
     NSString *when = date.length
-        ? [@"发布于" stringByAppendingString:date]
-        : @"已发布";
-
+    ? [@"发布于" stringByAppendingString:date]
+    : @"已发布";
+    
     if (SGUpdateVersion())
         return [NSString stringWithFormat:@"%@ %@，当前版本为 %s。期间的所有更新如下。",
                 newest.version, when, SG_VERSION];
-
+    
     return [NSString stringWithFormat:@"当前版本 %s 是 GitHub 上的最新版本，%@。更新内容如下。",
             SG_VERSION, when];
-
+}
 // The three rows at the top, then a section per release and heading: "0.19.0 · Features".
 
 - (NSArray<SGUpdateGroup *> *)build {
