@@ -114,11 +114,11 @@ static NSArray<SGUpdateRelease *> *releasesToShow(void) {
     SGUpdateRelease *newest = SGUpdateNewestRelease();
     if (!newest) return [NSString stringWithFormat:@"当前版本为 %s。尚未向 GitHub 请求更新信息。", SG_VERSION];
     NSString *date = longDate(newest.date);
-    NSString *when = date.length ? [@" 发布于 " stringByAppendingString:date] : @" 已发布";
+    NSString *when = date.length ? [@"" stringByAppendingString:date] : @" 已发布";
     if (SGUpdateVersion())
         return [NSString stringWithFormat:@"%@%@，当前版本为 %s。期间的所有更新如下。",
                 newest.version, when, SG_VERSION];
-    return [NSString stringWithFormat:@"当前版本 %s 是 GitHub 上的最新版本，于%@发布。更新内容如下。",
+    return [NSString stringWithFormat:@"当前版本 %s 是 GitHub 上的最新版本，%@。更新内容如下。",
             SG_VERSION, when];
 }
 
