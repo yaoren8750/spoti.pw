@@ -19,9 +19,9 @@ SGLyricsMeaningsLevel SGLyricsMeaningsShown(void) {
 }
 
 SGModRow *SGLyricsMeaningsRow(void) {
-    SGModRow *row = SGChoiceRow(@"Line meanings", nil, SGKeyLyricsMeanings,
-                                @[@"Off", @"From the artist", @"Artist and editors", @"Everyone"], SGLyricsMeaningsOff);
-    row.choiceFooter = @"Explanations from Genius. Tap the bubble after a line, or hold the line.";
+    SGModRow *row = SGChoiceRow(@"歌词翻译", nil, SGKeyLyricsMeanings,
+                                @[@"关闭", @"来自艺术家", @"艺术家和编辑", @"所有人"], SGLyricsMeaningsOff);
+    row.choiceFooter = @"歌词翻译来自 Genius。点击歌词后的气泡，或长按歌词查看。";
     return row;
 }
 

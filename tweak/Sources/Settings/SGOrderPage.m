@@ -90,8 +90,8 @@ typedef NS_ENUM(NSInteger, SGOrderSection) {
 }
 
 - (UIView *)tableView:(UITableView *)table viewForHeaderInSection:(NSInteger)section {
-    if (section == SGOrderSectionOn) return SGSectionHeader(table, _on.count ? @"Asked in this order" : @"None on");
-    return _off.count ? SGSectionHeader(table, @"Off") : nil;
+    if (section == SGOrderSectionOn) return SGSectionHeader(table, _on.count ? @"按此顺序启用" : @"未启用");
+    return _off.count ? SGSectionHeader(table, @"关闭") : nil;
 }
 
 - (CGFloat)tableView:(UITableView *)table heightForHeaderInSection:(NSInteger)section {
