@@ -11,315 +11,605 @@
 
 // A row of this page: a line of a changelog, or one of the three at the top that do something.
 @interface SGUpdateRow : NSObject
+
 @property (nonatomic, copy) NSString *title;
+
 @property (nonatomic, copy) NSString *subtitle;
+
 @property (nonatomic, copy) NSString *symbol;
-@property (nonatomic, copy) NSString *key;              // a switch row, on until it is switched off
-@property (nonatomic, copy) NSString *(^value)(void);   // read out on the right, again once a second
+
+@property (nonatomic, copy) NSString *key;          // a switch row, on until it is switched off
+
+@property (nonatomic, copy) NSString *(^value)(void);    // read out on the right, again once a second
+
 @property (nonatomic, copy) void (^action)(void);
+
 @end
 
 @interface SGUpdateGroup : NSObject
+
 @property (nonatomic, copy) NSString *title;
+
 @property (nonatomic, copy) NSString *footer;
+
 @property (nonatomic, copy) NSArray<SGUpdateRow *> *rows;
+
 @end
 
 @implementation SGUpdateRow
+
 @end
 
 @implementation SGUpdateGroup
+
 @end
 
 static SGUpdateRow *linkRow(NSString *title, NSString *subtitle, NSString *symbol, NSString *url) {
+
     SGUpdateRow *row = [SGUpdateRow new];
+
     row.title = title;
+
     row.subtitle = subtitle;
+
     row.symbol = symbol;
+
     row.action = ^{ SGOpenURL(url); };
+
     return row;
+
 }
 
 static SGUpdateGroup *group(NSString *title, NSArray<SGUpdateRow *> *rows) {
+
     SGUpdateGroup *section = [SGUpdateGroup new];
+
     section.title = title;
+
     section.rows = rows;
+
     return section;
+
 }
 
-// "2026-09-18T17:25:02Z" written out, and the empty string for a release GitHub never dated. Every
-// word of the mod's is English, so the month is too, whatever the phone is set to.
+// "2026-09-18T17:25:02Z" written out, and the empty string for a release GitHub never dated.
+// Every word of the mod's is English, so the month is too, whatever the phone is set to.
+
 static NSString *dateInWords(NSString *published, NSString *format) {
+
     static NSISO8601DateFormatter *reader;
+
     static NSDateFormatter *writer;
+
     static dispatch_once_t once;
+
     dispatch_once(&once, ^{
+
         reader = [NSISO8601DateFormatter new];
+
         writer = [NSDateFormatter new];
+
         writer.locale = [NSLocale localeWithLocaleIdentifier:@"en_US_POSIX"];
+
     });
+
     NSDate *date = published.length ? [reader dateFromString:published] : nil;
+
     if (!date) return @"";
+
     writer.dateFormat = format;
+
     return [writer stringFromDate:date];
+
 }
 
 static NSString *shortDate(NSString *published) {   // 18 Sep 2026
+
     return dateInWords(published, @"d MMM yyyy");
+
 }
 
-static NSString *longDate(NSString *published) {    // 18 September 2026
-    return dateInWords(published, @"d MMMM yyyy");
+static NSString *longDate(NSString *published) {    // 2026年9月18日
+
+    return dateInWords(published, @"yyyy年M月d日");
+
 }
 
 #pragma mark - the page
 
 @interface SGUpdatePageController : SGPage
+
 @end
 
 @implementation SGUpdatePageController {
+
     NSArray<SGUpdateGroup *> *_groups;
+
     UIView *_intro;
+
     NSTimer *_ticker;
+
 }
 
 - (instancetype)init {
+
     if (!(self = [super initWithStyle:UITableViewStyleInsetGrouped])) return nil;
+
     self.title = @"更新";
+
     _groups = [self build];
-    [NSNotificationCenter.defaultCenter addObserver:self selector:@selector(checkLanded)
-                                               name:SGUpdateCheckedNotification object:nil];
+
+    [NSNotificationCenter.defaultCenter addObserver:self
+                                           selector:@selector(checkLanded)
+                                               name:SGUpdateCheckedNotification
+                                             object:nil];
+
     return self;
+
 }
 
 - (void)dealloc {
+
     [NSNotificationCenter.defaultCenter removeObserver:self];
+
     [_ticker invalidate];
+
 }
 
 // The releases whose changelog this page shows: everything newer than the build, newest first.
 // Nothing newer means the build is the newest release, and its own notes are what there is to read.
+
 static NSArray<SGUpdateRelease *> *releasesToShow(void) {
+
     NSArray<SGUpdateRelease *> *releases = SGUpdateReleases();
+
     NSMutableArray<SGUpdateRelease *> *shown = [NSMutableArray array];
+
     for (SGUpdateRelease *release in releases) {
+
         if (!SGUpdateIsNewer(release.version)) break;
+
         [shown addObject:release];
+
     }
+
     if (!shown.count && releases.firstObject) [shown addObject:releases.firstObject];
+
     return shown;
+
 }
 
 - (NSString *)introText {
+
     SGUpdateRelease *newest = SGUpdateNewestRelease();
-    if (!newest) return [NSString stringWithFormat:@"当前版本为 %s。尚未向 GitHub 请求更新信息。", SG_VERSION];
+
+    if (!newest)
+        return [NSString stringWithFormat:@"当前版本为 %s。尚未向 GitHub 请求更新信息。", SG_VERSION];
+
     NSString *date = longDate(newest.date);
-    NSString *when = date.length ? [@"" stringByAppendingString:date] : @" 已发布";
+    NSString *when = date.length
+        ? [@"发布于" stringByAppendingString:date]
+        : @"已发布";
+
     if (SGUpdateVersion())
-        return [NSString stringWithFormat:@"%@%@，当前版本为 %s。期间的所有更新如下。",
+        return [NSString stringWithFormat:@"%@ %@，当前版本为 %s。期间的所有更新如下。",
                 newest.version, when, SG_VERSION];
+
     return [NSString stringWithFormat:@"当前版本 %s 是 GitHub 上的最新版本，%@。更新内容如下。",
             SG_VERSION, when];
-}
 
 // The three rows at the top, then a section per release and heading: "0.19.0 · Features".
+
 - (NSArray<SGUpdateGroup *> *)build {
+
     NSMutableArray<SGUpdateGroup *> *groups = [NSMutableArray array];
+
     SGUpdateRow *check = [SGUpdateRow new];
+
     check.title = @"立即检查";
+
     check.symbol = @"arrow.clockwise";
-    check.value = ^NSString *{ return SGUpdateStatus(); };
-    check.action = ^{ SGCheckForUpdate(YES); };
+
+    check.value = ^NSString *{
+        return SGUpdateStatus();
+    };
+
+    check.action = ^{
+        SGCheckForUpdate(YES);
+    };
+
     NSMutableArray<SGUpdateRow *> *top = [NSMutableArray arrayWithObject:check];
+
     SGUpdateRelease *newest = SGUpdateNewestRelease();
+
     if (SGUpdateVersion() && newest.url.length)
+
         [top addObject:linkRow([@"获取 " stringByAppendingString:newest.version],
-                               @"GitHub 上的发布版本，包含 .deb 文件", @"arrow.down.circle", newest.url)];
-    [top addObject:linkRow(@"所有版本", @"所有版本，包括当前版本和之前的版本",
-                           @"clock.arrow.circlepath", [SGRepoURL stringByAppendingString:@"/releases"])];
+                               @"GitHub 上的发布版本，包含 .deb 文件",
+                               @"arrow.down.circle",
+                               newest.url)];
+
+    [top addObject:linkRow(@"所有版本",
+                           @"所有版本，包括当前版本和之前的版本",
+                           @"clock.arrow.circlepath",
+                           [SGRepoURL stringByAppendingString:@"/releases"])];
+
     [groups addObject:group(nil, top)];
 
     SGUpdateRow *notice = [SGUpdateRow new];
+
     notice.title = @"自动检查更新";
+
     notice.symbol = @"bell";
+
     notice.key = SGKeyUpdateNotice;
+
     [groups addObject:group(nil, @[notice])];
 
     for (SGUpdateRelease *release in releasesToShow()) {
+
         NSMutableArray<NSString *> *kinds = [NSMutableArray array];
-        NSMutableDictionary<NSString *, NSMutableArray<SGUpdateRow *> *> *byKind = [NSMutableDictionary dictionary];
+
+        NSMutableDictionary<NSString *, NSMutableArray<SGUpdateRow *> *> *byKind =
+            [NSMutableDictionary dictionary];
+
         for (SGUpdateChange *change in release.changes) {
+
             NSMutableArray<SGUpdateRow *> *rows = byKind[change.kind];
+
             if (!rows) {
+
                 rows = [NSMutableArray array];
+
                 byKind[change.kind] = rows;
+
                 [kinds addObject:change.kind];
+
             }
+
             SGUpdateRow *row = [SGUpdateRow new];
+
             row.title = change.text;
-            if (change.url.length) row.action = ^{ SGOpenURL(change.url); };
+
+            if (change.url.length)
+                row.action = ^{
+                    SGOpenURL(change.url);
+                };
+
             [rows addObject:row];
+
         }
+
         NSString *date = shortDate(release.date);
+
         if (!kinds.count) {
+
             SGUpdateRow *empty = [SGUpdateRow new];
+
             empty.title = @"暂无记录";
-            empty.subtitle = release.url.length ? @"点击查看 GitHub 上的发布信息" : nil;
-            if (release.url.length) empty.action = ^{ SGOpenURL(release.url); };
-            [groups addObject:group([NSString stringWithFormat:@"%@%@", release.version,
-                                     date.length ? [@" · " stringByAppendingString:date] : @""], @[empty])];
+
+            empty.subtitle = release.url.length
+                ? @"点击查看 GitHub 上的发布信息"
+                : nil;
+
+            if (release.url.length)
+                empty.action = ^{
+                    SGOpenURL(release.url);
+                };
+
+            [groups addObject:group(
+                [NSString stringWithFormat:@"%@%@",
+                 release.version,
+                 date.length
+                     ? [@" · " stringByAppendingString:date]
+                     : @""],
+                @[empty]
+            )];
+
             continue;
+
         }
+
         [kinds enumerateObjectsUsingBlock:^(NSString *kind, NSUInteger i, BOOL *stop) {
+
             // The date goes on the first heading of a release, so several releases read as dated blocks.
-            NSString *title = [NSString stringWithFormat:@"%@ · %@%@", release.version, kind,
-                               i == 0 && date.length ? [@" · " stringByAppendingString:date] : @""];
+
+            NSString *title = [NSString stringWithFormat:@"%@ · %@%@",
+                               release.version,
+                               kind,
+                               i == 0 && date.length
+                                   ? [@" · " stringByAppendingString:date]
+                                   : @""];
+
             [groups addObject:group(title, byKind[kind])];
+
         }];
+
     }
+
     return groups;
+
 }
 
 - (void)viewDidLoad {
+
     [super viewDidLoad];
+
     _intro = SGNote([self introText]);
+
     self.tableView.tableHeaderView = _intro;
+
 }
 
 - (void)viewWillLayoutSubviews {
+
     [super viewWillLayoutSubviews];
+
     SGFitNote(self.tableView, _intro, 24, 0);
+
 }
 
 - (void)viewDidLayoutSubviews {
+
     [super viewDidLayoutSubviews];
+
     SGInsetForBars(self.tableView);
+
 }
 
 - (void)viewWillAppear:(BOOL)animated {
+
     [super viewWillAppear:animated];
+
     [self.tableView reloadData];
+
     // Only the status reads out on the right, and only it moves on its own while the page is open;
     // it is written into the cell so that a reload never lands under a tap.
+
     [_ticker invalidate];
-    _ticker = [NSTimer scheduledTimerWithTimeInterval:1 target:self selector:@selector(readStatus) userInfo:nil repeats:YES];
+
+    _ticker = [NSTimer scheduledTimerWithTimeInterval:1
+                                               target:self
+                                             selector:@selector(readStatus)
+                                             userInfo:nil
+                                              repeats:YES];
+
 }
 
 - (void)viewDidDisappear:(BOOL)animated {
+
     [super viewDidDisappear:animated];
+
     [_ticker invalidate];
+
     _ticker = nil;
+
 }
 
 - (void)readStatus {
+
     for (UITableViewCell *cell in self.tableView.visibleCells) {
-        SGUpdateRow *row = [self rowAt:[self.tableView indexPathForCell:cell]];
+
+        SGUpdateRow *row =
+            [self rowAt:[self.tableView indexPathForCell:cell]];
+
         UILabel *label = (UILabel *)cell.accessoryView;
+
         if (!row.value || ![label isKindOfClass:UILabel.class]) continue;
+
         label.text = row.value();
+
         [label sizeToFit];
+
         [cell setNeedsLayout];
+
     }
+
 }
 
 // A check that lands may have brought a release nobody had heard of: the whole page is built again,
 // intro and all, and faded in where it stands.
+
 - (void)checkLanded {
+
     _groups = [self build];
+
     UILabel *note = (UILabel *)_intro.subviews.firstObject;
+
     note.text = [self introText];
+
     [self.view setNeedsLayout];
-    [UIView transitionWithView:self.tableView duration:0.25 options:UIViewAnimationOptionTransitionCrossDissolve
-                    animations:^{ [self.tableView reloadData]; } completion:nil];
+
+    [UIView transitionWithView:self.tableView
+                      duration:0.25
+                       options:UIViewAnimationOptionTransitionCrossDissolve
+                    animations:^{
+                        [self.tableView reloadData];
+                    }
+                    completion:nil];
+
 }
 
 - (SGUpdateRow *)rowAt:(NSIndexPath *)path {
+
     if (!path) return nil;
+
     return _groups[(NSUInteger)path.section].rows[(NSUInteger)path.row];
+
 }
 
 - (NSInteger)numberOfSectionsInTableView:(UITableView *)table {
+
     return (NSInteger)_groups.count;
+
 }
 
-- (NSInteger)tableView:(UITableView *)table numberOfRowsInSection:(NSInteger)section {
+- (NSInteger)tableView:(UITableView *)table
+ numberOfRowsInSection:(NSInteger)section {
+
     return (NSInteger)_groups[(NSUInteger)section].rows.count;
+
 }
 
-- (UIView *)tableView:(UITableView *)table viewForHeaderInSection:(NSInteger)section {
+- (UIView *)tableView:(UITableView *)table
+viewForHeaderInSection:(NSInteger)section {
+
     NSString *title = _groups[(NSUInteger)section].title;
+
     return title ? SGSectionHeader(table, title) : nil;
+
 }
 
-- (CGFloat)tableView:(UITableView *)table heightForHeaderInSection:(NSInteger)section {
-    return _groups[(NSUInteger)section].title ? SGSectionHeaderHeight : SGSectionGap;
+- (CGFloat)tableView:(UITableView *)table
+heightForHeaderInSection:(NSInteger)section {
+
+    return _groups[(NSUInteger)section].title
+        ? SGSectionHeaderHeight
+        : SGSectionGap;
+
 }
 
-- (UIView *)tableView:(UITableView *)table viewForFooterInSection:(NSInteger)section {
+- (UIView *)tableView:(UITableView *)table
+viewForFooterInSection:(NSInteger)section {
+
     NSString *footer = _groups[(NSUInteger)section].footer;
+
     return footer ? SGSectionFooter(table, footer) : nil;
+
 }
 
-- (CGFloat)tableView:(UITableView *)table heightForFooterInSection:(NSInteger)section {
+- (CGFloat)tableView:(UITableView *)table
+heightForFooterInSection:(NSInteger)section {
+
     NSString *footer = _groups[(NSUInteger)section].footer;
-    return footer ? SGSectionFooterHeight(table, footer) : CGFLOAT_MIN;
+
+    return footer
+        ? SGSectionFooterHeight(table, footer)
+        : CGFLOAT_MIN;
+
 }
 
-- (UITableViewCell *)tableView:(UITableView *)table cellForRowAtIndexPath:(NSIndexPath *)path {
+- (UITableViewCell *)tableView:(UITableView *)table
+         cellForRowAtIndexPath:(NSIndexPath *)path {
+
     SGUpdateRow *row = [self rowAt:path];
-    UITableViewCell *cell = SGDequeueCell(table, row.symbol ? @"tiled" : @"line");
+
+    UITableViewCell *cell =
+        SGDequeueCell(table, row.symbol ? @"tiled" : @"line");
+
     SGFillCell(cell, row.title, row.subtitle, nil, nil);
+
     if (row.symbol) {
-        UIListContentConfiguration *content = (UIListContentConfiguration *)cell.contentConfiguration;
+
+        UIListContentConfiguration *content =
+            (UIListContentConfiguration *)cell.contentConfiguration;
+
         content.image = SGTileImage(row.symbol);
+
         content.imageToTextPadding = 14;
+
         cell.contentConfiguration = content;
+
     }
-    cell.separatorInset = UIEdgeInsetsMake(0, row.symbol ? 58 : 16, 0, 0);
+
+    cell.separatorInset =
+        UIEdgeInsetsMake(0, row.symbol ? 58 : 16, 0, 0);
+
     if (row.key) {
+
         UISwitch *toggle = [UISwitch new];
+
         toggle.onTintColor = SGGreen();
+
         toggle.on = SGEnabled(row.key);
+
         toggle.accessibilityLabel = row.title;
-        [toggle addTarget:self action:@selector(toggled:) forControlEvents:UIControlEventValueChanged];
+
+        [toggle addTarget:self
+                   action:@selector(toggled:)
+         forControlEvents:UIControlEventValueChanged];
+
         cell.accessoryView = toggle;
+
     } else if (row.value) {
+
         UILabel *label = [UILabel new];
+
         label.font = SGTitleFont();
+
         label.textColor = SGGrey();
+
         label.text = row.value();
+
         [label sizeToFit];
+
         cell.accessoryView = label;
+
     }
-    cell.selectionStyle = row.action ? UITableViewCellSelectionStyleDefault : UITableViewCellSelectionStyleNone;
-    cell.accessibilityTraits = row.action ? UIAccessibilityTraitButton : UIAccessibilityTraitStaticText;
+
+    cell.selectionStyle =
+        row.action
+            ? UITableViewCellSelectionStyleDefault
+            : UITableViewCellSelectionStyleNone;
+
+    cell.accessibilityTraits =
+        row.action
+            ? UIAccessibilityTraitButton
+            : UIAccessibilityTraitStaticText;
+
     return cell;
+
 }
 
 // The switch is read by the cell it sits in, since a rebuilt page moves the rows under it.
+
 - (void)toggled:(UISwitch *)toggle {
+
     UIView *view = toggle;
-    while (view && ![view isKindOfClass:UITableViewCell.class]) view = view.superview;
-    SGUpdateRow *row = [self rowAt:[self.tableView indexPathForCell:(UITableViewCell *)view]];
-    if (row.key) SGSetEnabled(row.key, toggle.on);
+
+    while (view && ![view isKindOfClass:UITableViewCell.class])
+        view = view.superview;
+
+    SGUpdateRow *row =
+        [self rowAt:[self.tableView indexPathForCell:(UITableViewCell *)view]];
+
+    if (row.key)
+        SGSetEnabled(row.key, toggle.on);
+
 }
 
-- (BOOL)tableView:(UITableView *)table shouldHighlightRowAtIndexPath:(NSIndexPath *)path {
+- (BOOL)tableView:(UITableView *)table
+shouldHighlightRowAtIndexPath:(NSIndexPath *)path {
+
     return [self rowAt:path].action != nil;
+
 }
 
-- (void)tableView:(UITableView *)table didSelectRowAtIndexPath:(NSIndexPath *)path {
+- (void)tableView:(UITableView *)table
+didSelectRowAtIndexPath:(NSIndexPath *)path {
+
     [table deselectRowAtIndexPath:path animated:YES];
+
     SGUpdateRow *row = [self rowAt:path];
-    if (row.action) row.action();
+
+    if (row.action)
+        row.action();
+
     // Check now goes grey to "checking…" the moment it is tapped rather than on the next tick.
-    if (row.value) [self readStatus];
+
+    if (row.value)
+        [self readStatus];
+
 }
 
 @end
 
 UIViewController *SGUpdatePage(void) {
+
     // Opening the page counts as asking, but the six hours still hold: Check now is the way past them.
+
     SGCheckForUpdate(NO);
+
     return [SGUpdatePageController new];
+
 }

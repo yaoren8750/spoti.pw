@@ -58,30 +58,30 @@ static void showFix(void) {
     UIViewController *top = SGTopController();
     if (!appID || !top) return;
     NSString *message = [NSString stringWithFormat:
-        @"Sign Spotify again with the bundle id set to\n\n%@\n\n"
-        @"In Feather that is the Identifier field; leave PPQ protection off, it appends a random "
-        @"string and breaks this again.\n\n"
-        @"Why: this build is installed as %@ but signed under the App ID %@. iOS opens the now "
-        @"playing card by the App ID, so it asks for an app that is not there. Nothing else in the "
-        @"mod is affected.", appID, bundleID, appID];
-    UIAlertController *sheet = [UIAlertController alertControllerWithTitle:@"The lock screen cannot open Spotify"
+                         @"请使用以下 Bundle ID 重新签名 Spotify：\n\n%@\n\n"
+                                 @"如果你使用 Feather，请在 Identifier 字段中填写该 ID；"
+                                 @"请关闭 PPQ 保护，否则它会自动追加随机字符串，导致此问题再次出现。\n\n"
+                                 @"原因：此版本安装时使用的是 %@，但签名使用的是 App ID %@。"
+                                 @"iOS 会根据 App ID 打开正在播放的卡片，因此找不到对应的应用。"
+                                 @"Mod 的其他功能不受影响。", appID, bundleID, appID];
+    UIAlertController *sheet = [UIAlertController alertControllerWithTitle:@"锁屏无法打开 Spotify"
                                                                   message:message
                                                            preferredStyle:UIAlertControllerStyleAlert];
-    [sheet addAction:[UIAlertAction actionWithTitle:@"Copy the bundle id" style:UIAlertActionStyleDefault handler:^(UIAlertAction *action) {
+    [sheet addAction:[UIAlertAction actionWithTitle:@"复制bundle id" style:UIAlertActionStyleDefault handler:^(UIAlertAction *action) {
         UIPasteboard.generalPasteboard.string = appID;
     }]];
-    [sheet addAction:[UIAlertAction actionWithTitle:@"Read more" style:UIAlertActionStyleDefault handler:^(UIAlertAction *action) {
+    [sheet addAction:[UIAlertAction actionWithTitle:@"了解更多" style:UIAlertActionStyleDefault handler:^(UIAlertAction *action) {
         SGOpenURL(SGSigningHelpURL);
     }]];
-    [sheet addAction:[UIAlertAction actionWithTitle:@"OK" style:UIAlertActionStyleCancel handler:nil]];
+    [sheet addAction:[UIAlertAction actionWithTitle:@"确定" style:UIAlertActionStyleCancel handler:nil]];
     [top presentViewController:sheet animated:YES completion:nil];
 }
 
 // nil while the signature is sound, which is what keeps the row out of Mod Settings entirely.
 SGModRow *SGSigningWarningRow(void) {
     if (SGSigningOpensFromLockScreen()) return nil;
-    return SGWarningRow(@"The lock screen cannot open Spotify",
-                        @"Tap for the fix",
+    return SGWarningRow(@"锁屏无法打开 Spotify",
+                        @"点击查看解决方法",
                         ^{ showFix(); });
 }
 

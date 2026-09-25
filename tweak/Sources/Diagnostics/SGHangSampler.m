@@ -70,9 +70,9 @@ static NSString *describe(uintptr_t address) {
 }
 
 static void logSample(uintptr_t frames[kMaxFrames], int count, double stalled, int index, NSString *reason) {
-    NSMutableString *text = [NSMutableString stringWithFormat:@"stalled %.0f ms, sample %d\n", stalled * 1000, index];
+    NSMutableString *text = [NSMutableString stringWithFormat:@"卡顿 %.0f 毫秒，采样 %d\n", stalled * 1000, index];
     for (int i = 0; i < count; i++) [text appendFormat:@"%@\n", describe(frames[i])];
-    SGLogLong([NSString stringWithFormat:@"hang %@", reason], text);
+    SGLogLong([NSString stringWithFormat:@"ha卡顿原因: %@", reason], text);
 }
 
 static void *watch(void *unused) {

@@ -31,9 +31,9 @@ static NSString *const kZlib =
 
 UIViewController *SGLicensesPage(void) {
     SGModRow *mod = SGLinkRow(@"spoti.pw", @"PolyForm Strict License 1.0.0", [SGRepoURL stringByAppendingString:@"/blob/main/LICENSE"]);
-    SGModRow *bs2b = SGLinkRow(@"libbs2b", @"Crossfeed · MIT License", @"https://github.com/alexmarsev/libbs2b");
-    SGModRow *wdl = SGLinkRow(@"WDL", @"Liveprog's EEL2 · zlib License", @"https://github.com/justinfrankel/WDL");
-    return [[SGModPage alloc] initWithTitle:@"Licenses" intro:@"The mod's own license, and the code from others it includes." sections:@[
+    SGModRow *bs2b = SGLinkRow(@"交叉馈音 · MIT 许可证", @"https://github.com/alexmarsev/libbs2b");
+    SGModRow *wdl = SGLinkRow(@"WDL", @"Liveprog的 EEL2 · zlib 许可证", @"https://github.com/justinfrankel/WDL");
+    return [[SGModPage alloc] initWithTitle:@"许可证" intro:@"本 Mod 使用的许可证，以及所包含的第三方代码。" sections:@[
         SGSection(nil, @[mod]),
         SGNotedSection(nil, @[bs2b], [@"Copyright (c) 2005 Boris Mikhaylov\n\n" stringByAppendingString:kMIT]),
         SGNotedSection(nil, @[wdl], [@"Copyright (C) 2004-2013 Cockos Incorporated\nCopyright (C) 1999-2003 Nullsoft, Inc.\n\n"
